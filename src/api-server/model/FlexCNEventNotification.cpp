@@ -33,87 +33,81 @@ CNRecord::CNRecord() {
   m_DddStatusIsSet          = false;
   m_MaxWaitTime             = "";
   m_MaxWaitTimeIsSet        = false;
-  m_CustomizedDataIsSet          = false;
+  m_CustomizedDataIsSet     = false;
   m_ListOptinalStringFields = {
-    "supi",
-    "gpsi",
-    "sourceDnai",
-    "targetDnai",
-    "sourceUeIpv4Addr",
-    "targetUeIpv4Addr",
-    "ueMac",
-    "adIpv4Addr",
-    "maxWaitTime",
-    "" 
-  };
+      "supi",
+      "gpsi",
+      "sourceDnai",
+      "targetDnai",
+      "sourceUeIpv4Addr",
+      "targetUeIpv4Addr",
+      "ueMac",
+      "adIpv4Addr",
+      "maxWaitTime",
+      ""};
 }
 
 CNRecord::~CNRecord() {}
 
-
-void CNRecord::merge(const EventNotification& event_data){
-    // get the event 
-    std::string event_type = event_data.getEvent().event;
-    if (event_type == "AC_TY_CH") {
-        mergeAccessTypeChange(event_data);
-    }
-    else if (event_type == "UP_PATH_CH") {
-        mergeUpPathChange(event_data);
-    }
-    else if (event_type == "PDU_SES_REL") {
-        mergePDUSessRelease(event_data);
-    }
-    else if (event_type == "PLMN_CH") {
-        mergePLMNChange(event_data);
-    }
-    else if (event_type == "UE_IP_CH") {
-        mergeUEIPChange(event_data);
-    }
-    else if (event_type == "DDDS") {
-        mergeDDDS(event_data);
-    }
-    else {
-      Logger::flexcn_app().info("Event from SMF not supported");
-    }
+void CNRecord::merge(const EventNotification& event_data) {
+  // get the event
+  std::string event_type = event_data.getEvent().event;
+  if (event_type == "AC_TY_CH") {
+    mergeAccessTypeChange(event_data);
+  } else if (event_type == "UP_PATH_CH") {
+    mergeUpPathChange(event_data);
+  } else if (event_type == "PDU_SES_REL") {
+    mergePDUSessRelease(event_data);
+  } else if (event_type == "PLMN_CH") {
+    mergePLMNChange(event_data);
+  } else if (event_type == "UE_IP_CH") {
+    mergeUEIPChange(event_data);
+  } else if (event_type == "DDDS") {
+    mergeDDDS(event_data);
+  } else {
+    Logger::flexcn_app().info("Event from SMF not supported");
+  }
 }
 
-void CNRecord::mergeAccessTypeChange(const EventNotification& event_data){
-  Logger::flexcn_app().info("Merge with the access type change event: NOT SUPPORTED");
+void CNRecord::mergeAccessTypeChange(const EventNotification& event_data) {
+  Logger::flexcn_app().info(
+      "Merge with the access type change event: NOT SUPPORTED");
 }
 
-void CNRecord::mergeUpPathChange(const EventNotification& event_data){
-  Logger::flexcn_app().info("Merge with the up path change event: NOT SUPPORTED");
+void CNRecord::mergeUpPathChange(const EventNotification& event_data) {
+  Logger::flexcn_app().info(
+      "Merge with the up path change event: NOT SUPPORTED");
 }
 
-void CNRecord::mergePDUSessRelease(const EventNotification& event_data){
+void CNRecord::mergePDUSessRelease(const EventNotification& event_data) {
   Logger::flexcn_app().info("Merge with pdu sess release event");
-  if (event_data.pduSeIdIsSet()){
+  if (event_data.pduSeIdIsSet()) {
     m_PduSeId = event_data.getPduSeId();
   }
 }
 
-void CNRecord::mergePLMNChange(const EventNotification& event_data){
+void CNRecord::mergePLMNChange(const EventNotification& event_data) {
   Logger::flexcn_app().info("Merge with the PLMN change event");
-  if (event_data.plmnIdIsSet()){
+  if (event_data.plmnIdIsSet()) {
     m_PlmnId = event_data.getPlmnId();
   }
 }
 
-void CNRecord::mergeUEIPChange(const EventNotification& event_data){
+void CNRecord::mergeUEIPChange(const EventNotification& event_data) {
   Logger::flexcn_app().info("Merge with the UE IP change event");
-  if (event_data.adIpv4AddrIsSet()){
+  if (event_data.adIpv4AddrIsSet()) {
     m_AdIpv4Addr = event_data.getAdIpv4Addr();
   }
 }
 
-void CNRecord::mergeDDDS(const EventNotification& event_data){
+void CNRecord::mergeDDDS(const EventNotification& event_data) {
   Logger::flexcn_app().info("Merge with the DDDS change event");
-  if (event_data.dddStatusIsSet()){
+  if (event_data.dddStatusIsSet()) {
     m_DddStatus = event_data.getDddStatus();
   }
 }
 
-// Hung_TODO: generate an example of json for Navid to decide 
+// Hung_TODO: generate an example of json for Navid to decide
 // which format is the best.
 void to_json(nlohmann::json& j, const CNRecord& o) {
   j              = nlohmann::json();
@@ -134,72 +128,70 @@ void to_json(nlohmann::json& j, const CNRecord& o) {
   if (o.pduSeIdIsSet()) j["pduSeId"] = o.m_PduSeId;
   if (o.dddStatusIsSet()) j["dddStatus"] = o.m_DddStatus;
   if (o.maxWaitTimeIsSet()) j["maxWaitTime"] = o.m_MaxWaitTime;
-  if (o.m_CustomizedDataIsSet){
-      nlohmann::json cj = {};
-      // PLMN
-      if (o.plmnIdIsSet()) cj["plmn"] = o.m_PlmnId;
-      // UE IPv4
-      if (o.ueIpv4IsSet()) cj["ue_ipv4_addr"] = o.getUeIpv4();
+  if (o.m_CustomizedDataIsSet) {
+    nlohmann::json cj = {};
+    // PLMN
+    if (o.plmnIdIsSet()) cj["plmn"] = o.m_PlmnId;
+    // UE IPv4
+    if (o.ueIpv4IsSet()) cj["ue_ipv4_addr"] = o.getUeIpv4();
 
+    // UE IPv6
+    if (o.ueIpv6PrefixIsSet()) cj["ue_ipv6_prefix"] = o.getUeIpv6Prefix();
 
-      // UE IPv6
-      if (o.ueIpv6PrefixIsSet()) cj["ue_ipv6_prefix"] = o.getUeIpv6Prefix();
+    // PDU Session Type
+    if (o.pduSeTypeIsSet()) cj["pdu_session_type"] = o.getPduSeType();
 
-      // PDU Session Type
-      if (o.pduSeTypeIsSet()) cj["pdu_session_type"] = o.getPduSeType();
-      
-      // NSSAI
-      if (o.snssaiIsSet()){
-        cj["snssai"]["sst"] = o.m_snssai_sst;
-        cj["snssai"]["sd"]  = o.m_snssai_sd;
-      }
-      
-      // DNN
-      if (o.dnnIsSet()){
-              cj["dnn"] = o.m_Dnn;
-      }
+    // NSSAI
+    if (o.snssaiIsSet()) {
+      cj["snssai"]["sst"] = o.m_snssai_sst;
+      cj["snssai"]["sd"]  = o.m_snssai_sd;
+    }
 
-      // Serving AMF addr
-      if (o.amfAddrIsSet()){
+    // DNN
+    if (o.dnnIsSet()) {
+      cj["dnn"] = o.m_Dnn;
+    }
+
+    // Serving AMF addr
+    if (o.amfAddrIsSet()) {
       cj["amf_addr"] = o.getAmfAddr();
+    }
 
-      }
-
-      if (o.qosFlowsIsSet()) {
-        cj["qos_flow"] = o.getQosFlows();
-        }
+    if (o.qosFlowsIsSet()) {
+      cj["qos_flow"] = o.getQosFlows();
+    }
     j["customized_data"] = cj;
   }
 }
 
 void to_json(nlohmann::json& j, const fteid& p) {
-        j = nlohmann::json{{"ipv4", p.ipv4}, {"ipv6", p.ipv6}};
+  j = nlohmann::json{{"ipv4", p.ipv4}, {"ipv6", p.ipv6}};
 }
 
 void to_json(nlohmann::json& j, const qos_flow& p) {
-        j = nlohmann::json{{"qfi", p.qfi}, {"upf_addr", p.upf_addr}, {"an_addr", p.an_addr}};
+  j = nlohmann::json{
+      {"qfi", p.qfi}, {"upf_addr", p.upf_addr}, {"an_addr", p.an_addr}};
 }
 
 void from_json(const nlohmann::json& j, qos_flow& p) {
-    //TODO: check if field exists in json
-    if (j.find("qfi") != j.end()) {
+  // TODO: check if field exists in json
+  if (j.find("qfi") != j.end()) {
     j.at("qfi").get_to(p.qfi);
   }
-    if (j.find("upf_addr") != j.end()) {
+  if (j.find("upf_addr") != j.end()) {
     j.at("upf_addr").get_to(p.upf_addr);
   }
   if (j.find("an_addr") != j.end()) {
     j.at("an_addr").get_to(p.an_addr);
-  }    
+  }
 };
 
-
 void from_json(const nlohmann::json& j, fteid& p) {
-        //TODO: check if field exists in json
-        if (j.find("ipv6") != j.end()) {
+  // TODO: check if field exists in json
+  if (j.find("ipv6") != j.end()) {
     j.at("ipv6").get_to(p.ipv6);
   }
-        if (j.find("ipv4") != j.end()) {
+  if (j.find("ipv4") != j.end()) {
     j.at("ipv4").get_to(p.ipv4);
   }
 }
@@ -295,7 +287,7 @@ void from_json(const nlohmann::json& j, CNRecord& o) {
       custom_data.at("pdu_session_type").get_to(o.m_PduSeType);
       o.m_PduSeTypeIsSet = true;
     }
-    
+
     // ue_ipv4_addr
     if (custom_data.find("ue_ipv4_addr") != custom_data.end()) {
       custom_data.at("ue_ipv4_addr").get_to(o.m_UeIpv4);
@@ -310,7 +302,7 @@ void from_json(const nlohmann::json& j, CNRecord& o) {
 
     // snssai
     if (custom_data.find("snssai") != custom_data.end()) {
-      //TODO: handle the error when the field is not available
+      // TODO: handle the error when the field is not available
       custom_data.at("snssai").at("sst").get_to(o.m_snssai_sst);
       custom_data.at("snssai").at("sd").get_to(o.m_snssai_sd);
       o.m_snssaiIsSet = true;
@@ -323,305 +315,292 @@ void from_json(const nlohmann::json& j, CNRecord& o) {
   }
 }
 
-std::vector<qos_flow> CNRecord::getQosFlows() const{
+std::vector<qos_flow> CNRecord::getQosFlows() const {
   return m_QosFlows;
 }
-  void CNRecord::setQosFlows(std::vector<qos_flow> const value){
-    m_QosFlows = value; //TODO: verify if it works
-    m_QosFlowsIsSet = true;
-    m_CustomizedDataIsSet = true;
-  }
-  bool CNRecord::qosFlowsIsSet() const{
-    return m_QosFlowsIsSet;
-  }
-  void CNRecord::unsetQosFlows(){
-    m_QosFlowsIsSet = false;
-  }
+void CNRecord::setQosFlows(std::vector<qos_flow> const value) {
+  m_QosFlows            = value;  // TODO: verify if it works
+  m_QosFlowsIsSet       = true;
+  m_CustomizedDataIsSet = true;
+}
+bool CNRecord::qosFlowsIsSet() const {
+  return m_QosFlowsIsSet;
+}
+void CNRecord::unsetQosFlows() {
+  m_QosFlowsIsSet = false;
+}
 
 // snssai
-  // std::string CNRecord::getSnssaiSst() const{
-  //   return m_snssai_sst;
-  // }
-  int CNRecord::getSnssaiSst() const{
-    return m_snssai_sst;
-  }
-  std::string CNRecord::getSnssaiSd() const{
-    return m_snssai_sd;
-  }
-  // int CNRecord::getSnssaiSd() const{
-  //   return m_snssai_sd;
-  // }
-  // void CNRecord::setSnssai(std::string const sst,std::string const sd){
-  //   m_snssai_sst = sst;
-  //   m_snssai_sd = sd;
-  //   m_snssaiIsSet = true;
-  //       m_CustomizedDataIsSet = true;
+// std::string CNRecord::getSnssaiSst() const{
+//   return m_snssai_sst;
+// }
+int CNRecord::getSnssaiSst() const {
+  return m_snssai_sst;
+}
+std::string CNRecord::getSnssaiSd() const {
+  return m_snssai_sd;
+}
+// int CNRecord::getSnssaiSd() const{
+//   return m_snssai_sd;
+// }
+// void CNRecord::setSnssai(std::string const sst,std::string const sd){
+//   m_snssai_sst = sst;
+//   m_snssai_sd = sd;
+//   m_snssaiIsSet = true;
+//       m_CustomizedDataIsSet = true;
 
-  // }
+// }
 
-  // void CNRecord::setSnssai(std::string const sst,int const sd){
-  //   m_snssai_sst = sst;
-  //   m_snssai_sd = sd;
-  //   m_snssaiIsSet = true;
-  //       m_CustomizedDataIsSet = true;
+// void CNRecord::setSnssai(std::string const sst,int const sd){
+//   m_snssai_sst = sst;
+//   m_snssai_sd = sd;
+//   m_snssaiIsSet = true;
+//       m_CustomizedDataIsSet = true;
 
-  // }
+// }
 
-  void CNRecord::setSnssai(int const sst,std::string const sd){
-    m_snssai_sst = sst;
-    m_snssai_sd = sd;
-    m_snssaiIsSet = true;
-        m_CustomizedDataIsSet = true;
+void CNRecord::setSnssai(int const sst, std::string const sd) {
+  m_snssai_sst          = sst;
+  m_snssai_sd           = sd;
+  m_snssaiIsSet         = true;
+  m_CustomizedDataIsSet = true;
+}
 
-  }
+bool CNRecord::snssaiIsSet() const {
+  return m_snssaiIsSet;
+}
 
-  bool CNRecord::snssaiIsSet() const{
-    return m_snssaiIsSet;
-  }
+void CNRecord::unsetSnssai() {
+  m_snssaiIsSet = false;
+}
 
-  void CNRecord::unsetSnssai(){
-    m_snssaiIsSet = false;
-  }
-
-
-// custom: ue ip v4 
-std::string CNRecord::getUeIpv4() const{
+// custom: ue ip v4
+std::string CNRecord::getUeIpv4() const {
   return m_UeIpv4;
 }
-  
-void CNRecord::setUeIpv4(std::string const value){
-  m_UeIpv4 = value;
-  m_UeIpv4IsSet = true;
-      m_CustomizedDataIsSet = true;
 
+void CNRecord::setUeIpv4(std::string const value) {
+  m_UeIpv4              = value;
+  m_UeIpv4IsSet         = true;
+  m_CustomizedDataIsSet = true;
 }
 
-bool CNRecord::ueIpv4IsSet() const{
+bool CNRecord::ueIpv4IsSet() const {
   return m_UeIpv4IsSet;
 }
-  
-void CNRecord::unsetUeIpv4(){
+
+void CNRecord::unsetUeIpv4() {
   m_UeIpv4IsSet = false;
 }
 
-// custom: ue ip v6 
-std::string CNRecord::getUeIpv6Prefix() const{
+// custom: ue ip v6
+std::string CNRecord::getUeIpv6Prefix() const {
   return m_UeIpv6Prefix;
 }
-  
-void CNRecord::setUeIpv6Prefix(std::string const value){
-  m_UeIpv6Prefix = value;
-  m_UeIpv6PrefixIsSet = true;
-      m_CustomizedDataIsSet = true;
 
+void CNRecord::setUeIpv6Prefix(std::string const value) {
+  m_UeIpv6Prefix        = value;
+  m_UeIpv6PrefixIsSet   = true;
+  m_CustomizedDataIsSet = true;
 }
 
-bool CNRecord::ueIpv6PrefixIsSet() const{
+bool CNRecord::ueIpv6PrefixIsSet() const {
   return m_UeIpv6PrefixIsSet;
 }
-  
-void CNRecord::unsetUeIpv6Prefix(){
+
+void CNRecord::unsetUeIpv6Prefix() {
   m_UeIpv6PrefixIsSet = false;
 }
 
-
-bool CNRecord::customizedDataIsSet() const{
+bool CNRecord::customizedDataIsSet() const {
   return m_CustomizedDataIsSet;
 }
 
-std::string CNRecord::getDnn() const{
-    return m_Dnn;
+std::string CNRecord::getDnn() const {
+  return m_Dnn;
 }
 
-void CNRecord::setDnn(std::string const& value){
-    m_Dnn = value;
-    m_DnnIsSet = true;
-    m_CustomizedDataIsSet = true;
+void CNRecord::setDnn(std::string const& value) {
+  m_Dnn                 = value;
+  m_DnnIsSet            = true;
+  m_CustomizedDataIsSet = true;
 }
-bool CNRecord::dnnIsSet() const{
-    return m_DnnIsSet;
+bool CNRecord::dnnIsSet() const {
+  return m_DnnIsSet;
 }
-void CNRecord::unsetDnn(){
-    m_DnnIsSet = false;
-}
-
-std::string CNRecord::getAmfStatusUri() const{
-    return m_AmfStatusUri;
+void CNRecord::unsetDnn() {
+  m_DnnIsSet = false;
 }
 
-void CNRecord::setAmfStatusUri(std::string const& value){
-    m_AmfStatusUri = value;
-    m_AmfStatusUriIsSet = true;
-        m_CustomizedDataIsSet = true;
-
+std::string CNRecord::getAmfStatusUri() const {
+  return m_AmfStatusUri;
 }
 
-bool CNRecord::amfStatusUriIsSet() const{
-    return m_AmfStatusUriIsSet;
+void CNRecord::setAmfStatusUri(std::string const& value) {
+  m_AmfStatusUri        = value;
+  m_AmfStatusUriIsSet   = true;
+  m_CustomizedDataIsSet = true;
+}
+
+bool CNRecord::amfStatusUriIsSet() const {
+  return m_AmfStatusUriIsSet;
 }
 
 void CNRecord::unsetAmfStatusUri() {
-    m_AmfStatusUri = false;
+  m_AmfStatusUri = false;
 }
 
 std::string CNRecord::getAmfAddr() const {
-    return m_AmfAddr;
+  return m_AmfAddr;
 }
 
-void CNRecord::setAmfAddr(std::string const& value){
-    m_AmfAddr = value;
-    m_AmfAddrIsSet = true;
-        m_CustomizedDataIsSet = true;
-
+void CNRecord::setAmfAddr(std::string const& value) {
+  m_AmfAddr             = value;
+  m_AmfAddrIsSet        = true;
+  m_CustomizedDataIsSet = true;
 }
 
-bool CNRecord::amfAddrIsSet() const{
-   return m_AmfAddrIsSet;
+bool CNRecord::amfAddrIsSet() const {
+  return m_AmfAddrIsSet;
 }
-void CNRecord::unsetAmfAddr(){
-    m_AmfAddrIsSet = false;
+void CNRecord::unsetAmfAddr() {
+  m_AmfAddrIsSet = false;
 }
 
 // upf_node_id
 pfcp::node_id_t CNRecord::getUPFNodeId() const {
-    return m_UpfNodeId;
+  return m_UpfNodeId;
 }
 
-void CNRecord::setUPFNodeId(pfcp::node_id_t const& value){
-    m_UpfNodeId = value;
-    m_UpfNodeIdIsSet = true;
-        m_CustomizedDataIsSet = true;
-
-}
-  
-bool CNRecord::upfNodeIdIsSet() const{
-    return m_UpfNodeIdIsSet;
+void CNRecord::setUPFNodeId(pfcp::node_id_t const& value) {
+  m_UpfNodeId           = value;
+  m_UpfNodeIdIsSet      = true;
+  m_CustomizedDataIsSet = true;
 }
 
-void CNRecord::unsetUPFNodeId(){
-    m_UpfNodeIdIsSet = false;
+bool CNRecord::upfNodeIdIsSet() const {
+  return m_UpfNodeIdIsSet;
+}
+
+void CNRecord::unsetUPFNodeId() {
+  m_UpfNodeIdIsSet = false;
 }
 
 // pdu_session_type_t CNRecord::getPduSeType() const{
-//     return m_PduSeType; 
+//     return m_PduSeType;
 // }
 // void CNRecord::setPduSeType(pdu_session_type_t const& value){
 //     m_PduSeType = value;
 // }
-std::string CNRecord::getPduSeType() const{
-    return m_PduSeType; 
+std::string CNRecord::getPduSeType() const {
+  return m_PduSeType;
 }
-void CNRecord::setPduSeType(std::string const& value){
-    m_PduSeType = value;
-    m_PduSeTypeIsSet = true;
-        m_CustomizedDataIsSet = true;
+void CNRecord::setPduSeType(std::string const& value) {
+  m_PduSeType           = value;
+  m_PduSeTypeIsSet      = true;
+  m_CustomizedDataIsSet = true;
+}
+bool CNRecord::pduSeTypeIsSet() const {
+  return m_PduSeTypeIsSet;
+}
+void CNRecord::unsetPduSeType() {
+  m_PduSeTypeIsSet = false;
+}
 
+// seid
+seid_t CNRecord::getSeid() const {
+  return m_seid;
 }
-bool CNRecord::pduSeTypeIsSet() const{
-    return m_PduSeTypeIsSet;
+void CNRecord::setSeid(seid_t const& value) {
+  m_seid      = value;
+  m_seidIsSet = true;
 }
-void CNRecord::unsetPduSeType(){
-    m_PduSeTypeIsSet = false;
+bool CNRecord::seidIsSet() const {
+  return m_seidIsSet;
 }
-
-// seid 
-seid_t CNRecord::getSeid() const{
-    return m_seid; 
-}
-void CNRecord::setSeid(seid_t const& value){
-    m_seid = value;
-    m_seidIsSet = true;
-}
-bool CNRecord::seidIsSet() const{
-    return m_seidIsSet;
-}
-void CNRecord::unsetSeid(){
-    m_seidIsSet = false;
+void CNRecord::unsetSeid() {
+  m_seidIsSet = false;
 }
 
 // up_fseid,
-pfcp::fseid_t CNRecord::getUpFseid() const{
-    return m_UpFseid;
+pfcp::fseid_t CNRecord::getUpFseid() const {
+  return m_UpFseid;
 }
-void CNRecord::setUpFseid(pfcp::fseid_t const& value){
-    m_UpFseid = value;
-    m_UpFseidIsSet = true;
+void CNRecord::setUpFseid(pfcp::fseid_t const& value) {
+  m_UpFseid      = value;
+  m_UpFseidIsSet = true;
 }
-bool CNRecord::upFseidIsSet() const{
- return m_UpFseidIsSet;
+bool CNRecord::upFseidIsSet() const {
+  return m_UpFseidIsSet;
 }
-void CNRecord::unsetUpFseid(){
-    m_UpFseidIsSet = false;
-}
- 
-// amf_id, 
-std::string CNRecord::getAmfId() const{
-    return m_AmfId;
+void CNRecord::unsetUpFseid() {
+  m_UpFseidIsSet = false;
 }
 
-void CNRecord::setAmfId(std::string const& value){
-    m_AmfId = value;
-    m_AmfIdIsSet = true;
-        m_CustomizedDataIsSet = true;
-
+// amf_id,
+std::string CNRecord::getAmfId() const {
+  return m_AmfId;
 }
 
-bool CNRecord::amfIdIsSet() const{
-return m_AmfIdIsSet;
-}
-void CNRecord::unsetAmfId(){
-    m_AmfIdIsSet = false;
-}
-
-// Dl_fteid [SMF]  
-pfcp::fteid_t CNRecord::getDlFteid() const{
-    return m_DlFteid;
-}
-void CNRecord::setDlFteid(pfcp::fteid_t const& value){
-    m_DlFteid = value;
-    m_DlFteidIsSet = true;
-        m_CustomizedDataIsSet = true;
-
-}
-bool CNRecord::dlFteidIsSet() const{
-    return m_DlFteidIsSet;
-}
-void CNRecord::unsetDlFteid(){
-    m_DlFteidIsSet = false;
+void CNRecord::setAmfId(std::string const& value) {
+  m_AmfId               = value;
+  m_AmfIdIsSet          = true;
+  m_CustomizedDataIsSet = true;
 }
 
-// Ul_fteid [SMF]  
-pfcp::fteid_t CNRecord::getUlFteid() const{
-    return m_UlFteid;
+bool CNRecord::amfIdIsSet() const {
+  return m_AmfIdIsSet;
 }
-void CNRecord::setUlFteid(pfcp::fteid_t const& value){
-    m_UlFteid = value;
-    m_UlFteidIsSet = true;
-        m_CustomizedDataIsSet = true;
+void CNRecord::unsetAmfId() {
+  m_AmfIdIsSet = false;
+}
 
+// Dl_fteid [SMF]
+pfcp::fteid_t CNRecord::getDlFteid() const {
+  return m_DlFteid;
 }
-bool CNRecord::ulFteidIsSet() const{
-    return m_UlFteidIsSet;
+void CNRecord::setDlFteid(pfcp::fteid_t const& value) {
+  m_DlFteid             = value;
+  m_DlFteidIsSet        = true;
+  m_CustomizedDataIsSet = true;
 }
-void CNRecord::unsetUlFteid(){
-    m_UlFteidIsSet = false;
+bool CNRecord::dlFteidIsSet() const {
+  return m_DlFteidIsSet;
+}
+void CNRecord::unsetDlFteid() {
+  m_DlFteidIsSet = false;
+}
+
+// Ul_fteid [SMF]
+pfcp::fteid_t CNRecord::getUlFteid() const {
+  return m_UlFteid;
+}
+void CNRecord::setUlFteid(pfcp::fteid_t const& value) {
+  m_UlFteid             = value;
+  m_UlFteidIsSet        = true;
+  m_CustomizedDataIsSet = true;
+}
+bool CNRecord::ulFteidIsSet() const {
+  return m_UlFteidIsSet;
+}
+void CNRecord::unsetUlFteid() {
+  m_UlFteidIsSet = false;
 }
 
 // eNB/gNB/CU IP@
-std::string CNRecord::getRanId() const{
-   return m_RanIP;
+std::string CNRecord::getRanId() const {
+  return m_RanIP;
 }
-void CNRecord::setRanId(int32_t const value){
-   m_RanIP = value;
-   m_RanIPIsSet = true;
-       m_CustomizedDataIsSet = true;
-
+void CNRecord::setRanId(int32_t const value) {
+  m_RanIP               = value;
+  m_RanIPIsSet          = true;
+  m_CustomizedDataIsSet = true;
 }
-bool CNRecord::ranIdIsSet() const{
-   return m_RanIPIsSet;
+bool CNRecord::ranIdIsSet() const {
+  return m_RanIPIsSet;
 }
-void CNRecord::unsetRanId(){
-   m_RanIPIsSet = false;
+void CNRecord::unsetRanId() {
+  m_RanIPIsSet = false;
 }
 
 SmfEvent CNRecord::getEvent() const {

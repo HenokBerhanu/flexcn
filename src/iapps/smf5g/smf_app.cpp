@@ -42,26 +42,29 @@
 #include "local_5g_db.hpp"
 #pragma message "CASSANDRA 5G IS OFF. FALLED BACK TO DAFAULT STORAGE."
 #endif
-SMFApp::SMFApp(const std::string& flexcn_ip, int flexcn_port,
-            const std::string& smf_ip, int smf_port) : MonitoringAppAPI() {
-    m_flexcn_ip = flexcn_ip;
-    m_flexcn_port = flexcn_port;
+SMFApp::SMFApp(
+    const std::string& flexcn_ip, int flexcn_port, const std::string& smf_ip,
+    int smf_port)
+    : MonitoringAppAPI() {
+  m_flexcn_ip   = flexcn_ip;
+  m_flexcn_port = flexcn_port;
 
-    m_smf_ip = smf_ip;
-    m_smf_port = smf_port;
+  m_smf_ip   = smf_ip;
+  m_smf_port = smf_port;
 
-    std::string addr = "";
+  std::string addr = "";
 
 #ifdef WITH_CASSANDRA
 
 #else
-    m_database_wrapper = std::make_shared<Local5GDB>(addr);
+  m_database_wrapper = std::make_shared<Local5GDB>(addr);
 #endif
 };
 
 //------------------------------------------------------------------------------
-bool trigger_pdu_session_status_notification_subscribe(const std::string& addr4, int port, 
-            const std::string& smf_addr_ipv4, int smf_addr_port) {
+bool trigger_pdu_session_status_notification_subscribe(
+    const std::string& addr4, int port, const std::string& smf_addr_ipv4,
+    int smf_addr_port) {
   Logger::flexcn_app().debug(
       "Send msg to subscribe to PDU Session Status notification from FLEXCN");
 
@@ -69,9 +72,8 @@ bool trigger_pdu_session_status_notification_subscribe(const std::string& addr4,
       std::make_shared<itti_n11_subscribe_pdu_session_status_notify>();
 
   nlohmann::json json_data = {};
-  json_data["notifUri"] =
-      std::string(addr4) + ":" + std::to_string(port) +
-      "/flexcn-status-notify/v1/notifid01";
+  json_data["notifUri"]    = std::string(addr4) + ":" + std::to_string(port) +
+                          "/flexcn-status-notify/v1/notifid01";
 
   json_data["notifId"] = "notifid01";
 
@@ -98,14 +100,14 @@ bool trigger_pdu_session_status_notification_subscribe(const std::string& addr4,
   json_data["eventSubs"].push_back(tmp4);
   json_data["eventSubs"].push_back(tmp5);
 
-  std::string url = std::string(smf_addr_ipv4) +
-                    ":" + std::to_string(smf_addr_port) +
+  std::string url = std::string(smf_addr_ipv4) + ":" +
+                    std::to_string(smf_addr_port) +
                     "/nsmf_event-exposure/v1/subscriptions";
 
   itti_msg->url       = url;
   itti_msg->json_data = json_data;
   Logger::flexcn_app().info(json_data.dump().c_str());
-  
+
   // bool res = subscribe_smf_event_exposure_service(itti_msg);
   bool res = subscribe_nf_event_exposure_service(itti_msg, "SMF");
 
@@ -113,26 +115,24 @@ bool trigger_pdu_session_status_notification_subscribe(const std::string& addr4,
   return res;
 }
 
-
-
 int SMFApp::subcribe_to_nf() {
-    // settup all necessary info
-    std::string addr4 = m_flexcn_ip;
-    int port = m_flexcn_port; 
-    std::string smf_addr_ipv4 = m_smf_ip;
-    int smf_addr_port = m_smf_port;
+  // settup all necessary info
+  std::string addr4         = m_flexcn_ip;
+  int port                  = m_flexcn_port;
+  std::string smf_addr_ipv4 = m_smf_ip;
+  int smf_addr_port         = m_smf_port;
 
-    bool res = trigger_pdu_session_status_notification_subscribe(
-        addr4, port, smf_addr_ipv4, smf_addr_port
-    );
+  bool res = trigger_pdu_session_status_notification_subscribe(
+      addr4, port, smf_addr_ipv4, smf_addr_port);
 
-    if (res) return 0;
-    return 1;
+  if (res) return 0;
+  return 1;
 }
 
-bool SMFApp::persist_data(const std::string& data_event, const std::string& id_str, int id_number){
-        Logger::flexcn_app().info("Add/Merge the following record to database : ");
-    Logger::flexcn_app().info(data_event.c_str());
+bool SMFApp::persist_data(
+    const std::string& data_event, const std::string& id_str, int id_number) {
+  Logger::flexcn_app().info("Add/Merge the following record to database : ");
+  Logger::flexcn_app().info(data_event.c_str());
 
   // parse string to json
 
@@ -165,54 +165,53 @@ bool SMFApp::persist_data(const std::string& data_event, const std::string& id_s
       Logger::flexcn_app().info("Event doesn't contains supi");
       Logger::flexcn_app().info(j.dump().c_str());
       // quit in this case
-      return false; 
+      return false;
     }
 
     bool success = false;
-    try{
-      
+    try {
       Logger::flexcn_app().info(j["supi"].dump().c_str());
       Logger::flexcn_app().info(j["pduSeId"].dump().c_str());
-      m_database_wrapper->insert_5g_context(data_event, j["supi"].get<std::string>(), j["pduSeId"].get<int>());
+      m_database_wrapper->insert_5g_context(
+          data_event, j["supi"].get<std::string>(), j["pduSeId"].get<int>());
 
-    }
-    catch (std::exception&   e){
+    } catch (std::exception& e) {
       Logger::flexcn_app().error("Error format of nortification as expected");
       Logger::flexcn_app().error(e.what());
     }
   }
 }
-std::string SMFApp::retrieve_data_by_id(int id){
-    Logger::flexcn_app().error("SMF iAPP does not support retrieve_data_by_id");
-    return "";
+std::string SMFApp::retrieve_data_by_id(int id) {
+  Logger::flexcn_app().error("SMF iAPP does not support retrieve_data_by_id");
+  return "";
 }
 
-std::string SMFApp::retrieve_data_by_key(const std::string& supi){
-    std::vector<SMFData> obj = m_database_wrapper->get_row_by_key(supi, 0);
-    if (obj.size() > 0)
-    {
-        nlohmann::json j = {};
-        nlohmann::to_json(j, obj);
-        // TODO: clear data once it is returned to the xapp
-        m_database_wrapper->delete_by_key(supi, -1);
+std::string SMFApp::retrieve_data_by_key(const std::string& supi) {
+  std::vector<SMFData> obj = m_database_wrapper->get_row_by_key(supi, 0);
+  if (obj.size() > 0) {
+    nlohmann::json j = {};
+    nlohmann::to_json(j, obj);
+    // TODO: clear data once it is returned to the xapp
+    m_database_wrapper->delete_by_key(supi, -1);
 
-        return j.dump(4).c_str();
-    }
-    Logger::flexcn_app().error("SMF iAPP does not have the data that is related to key [ %s ]", supi.c_str());
-    return "";
+    return j.dump(4).c_str();
+  }
+  Logger::flexcn_app().error(
+      "SMF iAPP does not have the data that is related to key [ %s ]",
+      supi.c_str());
+  return "";
 }
 
-std::string SMFApp::retrieve_all_data(){
-    std::vector<SMFData> obj = m_database_wrapper->get_all_rows();
-    
-    if (obj.size() > 0)
-    {
-        nlohmann::json j = {};
-        nlohmann::to_json(j, obj);
-        // // clear data once it is returned to the xapp
-        // m_database_wrapper->delete_by_key(supi, -1);
-        return j.dump(4).c_str();
-    }
-    
-    return "";
-}   
+std::string SMFApp::retrieve_all_data() {
+  std::vector<SMFData> obj = m_database_wrapper->get_all_rows();
+
+  if (obj.size() > 0) {
+    nlohmann::json j = {};
+    nlohmann::to_json(j, obj);
+    // // clear data once it is returned to the xapp
+    // m_database_wrapper->delete_by_key(supi, -1);
+    return j.dump(4).c_str();
+  }
+
+  return "";
+}

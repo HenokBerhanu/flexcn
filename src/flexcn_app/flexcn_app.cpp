@@ -54,9 +54,9 @@ extern flexcn_config flexcn_cfg;
 flexcn_client* flexcn_client_inst = nullptr;
 
 //------------------------------------------------------------------------------
-flexcn_app::flexcn_app(const std::string& config_file, flexcn_event& ev, int cn_version)
-    : m_event_sub(ev),
-      m_subscription_id2flexcn_subscription(){
+flexcn_app::flexcn_app(
+    const std::string& config_file, flexcn_event& ev, int cn_version)
+    : m_event_sub(ev), m_subscription_id2flexcn_subscription() {
   Logger::flexcn_app().startup("Starting...");
 
   try {
@@ -117,6 +117,4 @@ evsub_id_t flexcn_app::generate_ev_subscription_id() {
 //------------------------------------------------------------------------------
 void flexcn_app::get_subscription_list(
     const std::string& profile_id, const uint8_t& notification_type,
-    std::vector<std::string>& uris) const {
- 
- }
+    std::vector<std::string>& uris) const {}

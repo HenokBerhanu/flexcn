@@ -53,13 +53,14 @@ void Logger::_init(
   std::stringstream ss;
   ss << "[%Y-%m-%dT%H:%M:%S.%f] [" << app << "] [%n] [%l] %v";
 
-  m_async_cmd = new _Logger("async_c", m_sinks, ss.str().c_str());
-  m_itti      = new _Logger("itti   ", m_sinks, ss.str().c_str());
-  m_flexcn_app   = new _Logger("flexcn_app", m_sinks, ss.str().c_str());
-  m_system    = new _Logger("system ", m_sinks, ss.str().c_str());
-  m_flexcn_sbi   = new _Logger("sbi_srv", m_sinks, ss.str().c_str());
-  m_flexcn_api_server = new _Logger("flexcn_api_server", m_sinks, ss.str().c_str());
-  m_flexcn_iapp   = new _Logger("flexcn_IAPP", m_sinks, ss.str().c_str());
+  m_async_cmd  = new _Logger("async_c", m_sinks, ss.str().c_str());
+  m_itti       = new _Logger("itti   ", m_sinks, ss.str().c_str());
+  m_flexcn_app = new _Logger("flexcn_app", m_sinks, ss.str().c_str());
+  m_system     = new _Logger("system ", m_sinks, ss.str().c_str());
+  m_flexcn_sbi = new _Logger("sbi_srv", m_sinks, ss.str().c_str());
+  m_flexcn_api_server =
+      new _Logger("flexcn_api_server", m_sinks, ss.str().c_str());
+  m_flexcn_iapp = new _Logger("flexcn_IAPP", m_sinks, ss.str().c_str());
 }
 
 //------------------------------------------------------------------------------

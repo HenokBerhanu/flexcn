@@ -31,7 +31,7 @@ void to_json(nlohmann::json& j, const SmfEvent& o) {
 }
 
 void from_json(const nlohmann::json& j, SmfEvent& o) {
-    o.event = j.get<std::string>();
+  o.event = j.get<std::string>();
 }
 
 }  // namespace model

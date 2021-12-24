@@ -112,8 +112,6 @@ int32_t flexcn_profile::get_nf_heartBeat_timer() const {
   return heartBeat_timer;
 }
 
-
-
 //------------------------------------------------------------------------------
 void flexcn_profile::display() {
   Logger::flexcn_app().debug("NF instance info");
@@ -229,7 +227,6 @@ void flexcn_profile::to_json(nlohmann::json& data) const {
   data["nfType"]         = nf_type_e2str[nf_type];
   data["nfStatus"]       = nf_status;
   data["heartBeatTimer"] = heartBeat_timer;
-
 }
 
 //------------------------------------------------------------------------------
@@ -270,7 +267,8 @@ void flexcn_profile::subscribe_heartbeat_timeout_nfupdate(uint64_t ms) {
     ms = ms + 2000;  // Not a realtime NF: adding 2000ms interval between the
                      // expected NF update message and HBT
     task_connection = m_event_sub.subscribe_task_tick(
-        boost::bind(&flexcn_profile::handle_heartbeart_timeout_nfupdate, this, _1),
+        boost::bind(
+            &flexcn_profile::handle_heartbeart_timeout_nfupdate, this, _1),
         interval, ms + interval);
     first_update = false;
   }

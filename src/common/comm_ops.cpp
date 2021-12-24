@@ -15,11 +15,12 @@ std::size_t callback(
   return totalBytes;
 }
 
-
 bool subscribe_nf_event_exposure_service(
-    std::shared_ptr<itti_n11_subscribe_pdu_session_status_notify> msg, const std::string& nf_name) {
+    std::shared_ptr<itti_n11_subscribe_pdu_session_status_notify> msg,
+    const std::string& nf_name) {
   Logger::flexcn_sbi().debug(
-      "Send message to %s to be notified when a new event happens", nf_name.c_str());
+      "Send message to %s to be notified when a new event happens",
+      nf_name.c_str());
 
   Logger::flexcn_sbi().debug(
       "Send msg to %s, %s URL %s", nf_name.c_str(), nf_name.c_str(),
@@ -27,8 +28,7 @@ bool subscribe_nf_event_exposure_service(
 
   std::string body = msg->json_data.dump();
   Logger::flexcn_sbi().debug(
-      "Send msg to %s, msg body: %s", nf_name.c_str(),
-      body.c_str());
+      "Send msg to %s, msg body: %s", nf_name.c_str(), body.c_str());
 
   curl_global_init(CURL_GLOBAL_ALL);
   CURL* curl = curl = curl_easy_init();
@@ -66,8 +66,7 @@ bool subscribe_nf_event_exposure_service(
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
 
     Logger::flexcn_sbi().debug(
-        "Msg, response from %s, HTTP Code: %d",
-        nf_name.c_str(), httpCode);
+        "Msg, response from %s, HTTP Code: %d", nf_name.c_str(), httpCode);
 
     if ((static_cast<http_response_codes_e>(httpCode) ==
          http_response_codes_e::HTTP_RESPONSE_CODE_CREATED) or

@@ -45,8 +45,8 @@ namespace api {
 using namespace oai::flexcn_server::model;
 
 FlexCNStatImpl::FlexCNStatImpl(
-    std::shared_ptr<Pistache::Rest::Router> rtr, oai::flexcn::app::flexcn_app* flexcn_app_inst,
-    std::string address)
+    std::shared_ptr<Pistache::Rest::Router> rtr,
+    oai::flexcn::app::flexcn_app* flexcn_app_inst, std::string address)
     : FlexCNStat(rtr), m_flexcn_app(flexcn_app_inst), m_address(address) {}
 
 void FlexCNStatImpl::receive_stat_request(
@@ -55,9 +55,9 @@ void FlexCNStatImpl::receive_stat_request(
       "FlexCNStatImpl, received a stat request...");
 
   // // Handle the message in flexcn_app
-  uint8_t http_code              = 0;
+  uint8_t http_code = 0;
   response.headers().add<Pistache::Http::Header::ContentType>(
-        Pistache::Http::Mime::MediaType("application/problem+json"));
+      Pistache::Http::Mime::MediaType("application/problem+json"));
 }
 
 }  // namespace api

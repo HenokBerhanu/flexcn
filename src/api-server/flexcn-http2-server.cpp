@@ -45,27 +45,23 @@ using namespace nghttp2::asio_http2::server;
 using namespace oai::flexcn_server::model;
 
 //------------------------------------------------------------------------------
-void flexcn_http2_server::start() {
-}
+void flexcn_http2_server::start() {}
 
 //------------------------------------------------------------------------------
 void flexcn_http2_server::create_sm_contexts_handler(
-    const SmContextMessage& smContextMessage, const response& response) {
-  }
+    const SmContextMessage& smContextMessage, const response& response) {}
 
 //------------------------------------------------------------------------------
 void flexcn_http2_server::update_sm_context_handler(
     const std::string& flexcn_ref,
     const SmContextUpdateMessage& smContextUpdateMessage,
-    const response& response) {
-}
+    const response& response) {}
 
 //------------------------------------------------------------------------------
 void flexcn_http2_server::release_sm_context_handler(
     const std::string& flexcn_ref,
     const SmContextReleaseMessage& smContextReleaseMessage,
-    const response& response) {
-}
+    const response& response) {}
 
 //------------------------------------------------------------------------------
 void flexcn_http2_server::stop() {

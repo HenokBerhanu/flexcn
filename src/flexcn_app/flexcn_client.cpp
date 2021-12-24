@@ -159,7 +159,8 @@ void flexcn_client::curl_release_handles() {
       curl = curl_msg->easy_handle;
       code = curl_msg->data.result;
       if (code != CURLE_OK) {
-        Logger::flexcn_app().debug("CURL error code  %d!", curl_msg->data.result);
+        Logger::flexcn_app().debug(
+            "CURL error code  %d!", curl_msg->data.result);
         continue;
       }
       // Get HTTP code
@@ -213,5 +214,3 @@ void flexcn_client::subscribe_task_curl() {
   task_connection = m_event_sub.subscribe_task_tick(
       boost::bind(&flexcn_client::perform_curl_multi, this, _1), interval, 0);
 }
-
-

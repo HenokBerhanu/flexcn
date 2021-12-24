@@ -52,7 +52,6 @@ flexcn_app* flexcn_app_inst = nullptr;
 flexcn_config flexcn_cfg;
 FLEXCNApiServer* api_server = nullptr;
 
-
 // list of all iapps
 
 #ifdef WITH_4G
@@ -73,7 +72,6 @@ std::shared_ptr<AMFApp> amf5GApp = nullptr;
 #pragma message "5G AMF FEATURE IS ENABLED."
 #endif
 
-
 //------------------------------------------------------------------------------
 void my_app_signal_handler(int s) {
   std::cout << "Caught signal " << s << std::endl;
@@ -93,7 +91,7 @@ void my_app_signal_handler(int s) {
 
   // release the iApp HERE
 
-#ifdef WITH_4G  
+#ifdef WITH_4G
   // 4G app
   if (service4GApp) {
     service4GApp->shutdown();
@@ -136,21 +134,24 @@ int main(int argc, char** argv) {
   flexcn_event ev;
 
   // FLEXCN application layer
-  flexcn_app_inst = new flexcn_app(Options::getlibconfigConfig(), ev, flexcn_cfg.core_network_version);
+  flexcn_app_inst = new flexcn_app(
+      Options::getlibconfigConfig(), ev, flexcn_cfg.core_network_version);
 
-  std::string flexcn_ip_v4 = std::string(inet_ntoa(*((struct in_addr*) &flexcn_cfg.sbi.addr4)));
+  std::string flexcn_ip_v4 =
+      std::string(inet_ntoa(*((struct in_addr*) &flexcn_cfg.sbi.addr4)));
 
 #ifdef WITH_5G_SMF
-  //5g app launch here
-  smf5GApp = std::make_shared<SMFApp>(flexcn_ip_v4, flexcn_cfg.sbi.port, 
-                                          flexcn_cfg.smf_info.nf_addr_v4, 
-                                          flexcn_cfg.smf_info.port);
+  // 5g app launch here
+  smf5GApp = std::make_shared<SMFApp>(
+      flexcn_ip_v4, flexcn_cfg.sbi.port, flexcn_cfg.smf_info.nf_addr_v4,
+      flexcn_cfg.smf_info.port);
 #endif
 
 #ifdef WITH_5G_AMF
-  //5g app launch here
-  amf5GApp = std::make_shared<AMFApp>(flexcn_ip_v4, flexcn_cfg.sbi.port, 
-                          flexcn_cfg.amf_info.nf_addr_v4, flexcn_cfg.smf_info.port);
+  // 5g app launch here
+  amf5GApp = std::make_shared<AMFApp>(
+      flexcn_ip_v4, flexcn_cfg.sbi.port, flexcn_cfg.amf_info.nf_addr_v4,
+      flexcn_cfg.smf_info.port);
 #endif
 
   // Task Manager
@@ -161,16 +162,17 @@ int main(int argc, char** argv) {
   // Currently hard-coded value. TODO: add as config option.
   string pid_file_name = get_exe_absolute_path("/var/run", flexcn_cfg.instance);
   if (!is_pid_file_lock_success(pid_file_name.c_str())) {
-    Logger::flexcn_app().error("Lock PID file %s failed\n", pid_file_name.c_str());
+    Logger::flexcn_app().error(
+        "Lock PID file %s failed\n", pid_file_name.c_str());
     exit(-EDEADLK);
   }
 
-  Pistache::Address addr(
-      flexcn_ip_v4, Pistache::Port(flexcn_cfg.sbi.port));
-  std::shared_ptr<Pistache::Rest::Router> router  = std::make_shared<Pistache::Rest::Router>();
+  Pistache::Address addr(flexcn_ip_v4, Pistache::Port(flexcn_cfg.sbi.port));
+  std::shared_ptr<Pistache::Rest::Router> router =
+      std::make_shared<Pistache::Rest::Router>();
 
-#ifdef WITH_4G  
-  //iApps launch
+#ifdef WITH_4G
+  // iApps launch
   service4GApp = new Service4G(addr, router, "192.168.70.131");
   service4GApp->init(2);
   std::thread service4G_manager(&Service4G::run, service4GApp);
@@ -179,13 +181,11 @@ int main(int argc, char** argv) {
 
   // FLEXCN Pistache API server (HTTP1)
   api_server = new FLEXCNApiServer(addr);
-#ifdef WITH_5G_SMF  
-  // api_server->set_smf_app(smf5GApp);
+#ifdef WITH_5G_SMF
   api_server->set_monitor_app(smf5GApp);
 #endif
 
-#ifdef WITH_5G_AMF  
-  // api_server->set_amf_app(amf5GApp);
+#ifdef WITH_5G_AMF
   api_server->set_monitor_app(amf5GApp);
 #endif
 

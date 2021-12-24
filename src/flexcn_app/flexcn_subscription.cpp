@@ -81,7 +81,8 @@ subscription_condition_t flexcn_subscription::get_sub_condition() const {
 */
 
 //------------------------------------------------------------------------------
-void flexcn_subscription::set_notif_events(const std::vector<uint8_t>& ev_types) {
+void flexcn_subscription::set_notif_events(
+    const std::vector<uint8_t>& ev_types) {
   notif_events = ev_types;
 }
 
@@ -91,7 +92,8 @@ void flexcn_subscription::add_notif_event(const uint8_t& ev_type) {
 }
 
 //------------------------------------------------------------------------------
-void flexcn_subscription::get_notif_events(std::vector<uint8_t>& ev_types) const {
+void flexcn_subscription::get_notif_events(
+    std::vector<uint8_t>& ev_types) const {
   ev_types = notif_events;
 }
 
@@ -117,5 +119,5 @@ boost::posix_time::ptime flexcn_subscription::get_validity_time() const {
 
 //------------------------------------------------------------------------------
 void flexcn_subscription::display() {
-  //TODO: handle later
+  // TODO: handle later
 }

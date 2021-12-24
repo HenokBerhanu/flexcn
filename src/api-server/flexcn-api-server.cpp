@@ -75,7 +75,6 @@ void setUpUnixSignals(std::vector<int> quitSignals) {
 using namespace oai::flexcn_server::api;
 #endif
 
-
 void FLEXCNApiServer::init(size_t thr) {
   auto opts = Pistache::Http::Endpoint::options().threads(thr);
   opts.flags(Pistache::Tcp::Options::ReuseAddr);
@@ -86,9 +85,9 @@ void FLEXCNApiServer::init(size_t thr) {
   if (m_northBound5GApiImpl)
     m_northBound5GApiImpl->init();
   else
-    Logger::flexcn_api_server().info("NorthBound 5G API is not working in this version");
+    Logger::flexcn_api_server().info(
+        "NorthBound 5G API is not working in this version");
 #endif
-
 }
 void FLEXCNApiServer::start() {
   Logger::flexcn_api_server().info("HTTP1 server started");
@@ -101,12 +100,13 @@ void FLEXCNApiServer::shutdown() {
 }
 
 #ifdef WITH_5G
-void FLEXCNApiServer::set_monitor_app(std::shared_ptr<MonitoringAppAPI> flexcn_app_inst) {
-      m_eventNotifyApiImpl->add_iapp(flexcn_app_inst); 
-      m_northBound5GApiImpl->add_monitoring_iapp(flexcn_app_inst);
+void FLEXCNApiServer::set_monitor_app(
+    std::shared_ptr<MonitoringAppAPI> flexcn_app_inst) {
+  m_eventNotifyApiImpl->add_iapp(flexcn_app_inst);
+  m_northBound5GApiImpl->add_monitoring_iapp(flexcn_app_inst);
 }
-void FLEXCNApiServer::set_control_app(std::shared_ptr<iApp_api> app){
-  //TODO: adding control app
+void FLEXCNApiServer::set_control_app(std::shared_ptr<iApp_api> app) {
+  // TODO: adding control app
 }
 
 #endif

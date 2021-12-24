@@ -34,8 +34,7 @@ namespace api {
 using namespace oai::flexcn_server::helpers;
 using namespace oai::flexcn_server::model;
 
-EventNotifyApi::EventNotifyApi(
-    std::shared_ptr<Pistache::Rest::Router> rtr) {
+EventNotifyApi::EventNotifyApi(std::shared_ptr<Pistache::Rest::Router> rtr) {
   router = rtr;
 }
 
@@ -60,20 +59,18 @@ void EventNotifyApi::notify_status_handler(
     Pistache::Http::ResponseWriter response) {
   // Getting the body param
   // CNRecord eventExposureNotification = {};
-	
 
-   Logger::flexcn_api_server().debug(
-	 "Received a notification from SMF.");
-	  Logger::flexcn_api_server().debug("body: %s\n", request.body().c_str());
+  Logger::flexcn_api_server().debug("Received a notification from SMF.");
+  Logger::flexcn_api_server().debug("body: %s\n", request.body().c_str());
 
   try {
     auto notifRef = request.param(":notifRef").as<std::string>();
 
     // TODO: if this affect the performance, we need to change this
-    // need a mechanism to sync between this class and the class 
-    // flexcn_app.      
-      this->receive_status_notification(notifRef, request.body(), response);
-    
+    // need a mechanism to sync between this class and the class
+    // flexcn_app.
+    this->receive_status_notification(notifRef, request.body(), response);
+
   } catch (nlohmann::detail::exception& e) {
     // send a 400 error
     response.send(Pistache::Http::Code::Bad_Request, e.what());
@@ -82,13 +79,13 @@ void EventNotifyApi::notify_status_handler(
     return;
   } catch (Pistache::Http::HttpError& e) {
     response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
-        Logger::flexcn_api_server().info("Parsing this event failed");
+    Logger::flexcn_api_server().info("Parsing this event failed");
 
     return;
   } catch (std::exception& e) {
     // send a 500 error
     response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
-        Logger::flexcn_api_server().info("Parsing this event failed");
+    Logger::flexcn_api_server().info("Parsing this event failed");
 
     return;
   }

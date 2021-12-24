@@ -44,108 +44,100 @@
 
 #include "logger.hpp"
 
-
-
 App4G::App4G(const std::string& addr) {
-
 #ifdef WITH_CASSANDRA
-    //cassandra
-    m_database_wrapper = std::make_shared<Cassandra4GDB>(addr);
-#else     
-    //local database
-    m_database_wrapper = std::make_shared<Local4GDB>(addr);
+  // cassandra
+  m_database_wrapper = std::make_shared<Cassandra4GDB>(addr);
+#else
+  // local database
+  m_database_wrapper = std::make_shared<Local4GDB>(addr);
 #endif
-    
-    // TODO: handle max number of id
-    m_4gid = 1;
+
+  // TODO: handle max number of id
+  m_4gid = 1;
 }
 
-App4G::~App4G() {
+App4G::~App4G() {}
 
-}
-
-bool App4G::add_bearer(Bearer &bearer){
+bool App4G::add_bearer(Bearer& bearer) {
   bool success = m_database_wrapper->insert_4g_context(bearer, m_4gid);
   if (success) m_4gid++;
-  return success;   
+  return success;
 }
 
-std::vector<std::string> split (const std::string &s, char delim) {
-    std::vector<std::string> result;
-    std::stringstream ss (s);
-    std::string item;
+std::vector<std::string> split(const std::string& s, char delim) {
+  std::vector<std::string> result;
+  std::stringstream ss(s);
+  std::string item;
 
-    while (getline (ss, item, delim)) {
-        result.push_back (item);
-    }
-    return result;
+  while (getline(ss, item, delim)) {
+    result.push_back(item);
+  }
+  return result;
 }
 
-
-bool App4G::delete_a_single_bearer_by_imsi_bearer(const std::string &imsiBearer){
-
+bool App4G::delete_a_single_bearer_by_imsi_bearer(
+    const std::string& imsiBearer) {
   try {
     std::cout << "imsi bearer " << imsiBearer << std::endl;
-    std::vector<std::string> imsi_and_bearer_id =  split(imsiBearer, ',');
-    std::string imsi = imsi_and_bearer_id[0];
+    std::vector<std::string> imsi_and_bearer_id = split(imsiBearer, ',');
+    std::string imsi                            = imsi_and_bearer_id[0];
     unsigned int bearer_id = (unsigned int) std::stoul(imsi_and_bearer_id[1]);
     return m_database_wrapper->delete_by_imsi_bearer_id(imsi, bearer_id);
-  } catch (std::exception& e){
+  } catch (std::exception& e) {
     Logger::flexcn_app().error(e.what());
-    return false;      
+    return false;
   }
 
   return true;
 }
 
-bool App4G::delete_a_single_bearer_by_id(const std::string &id){
+bool App4G::delete_a_single_bearer_by_id(const std::string& id) {
   try {
-    unsigned int internal_id = (unsigned int) std::stoul(id,nullptr,0);
+    unsigned int internal_id = (unsigned int) std::stoul(id, nullptr, 0);
     return m_database_wrapper->delete_by_internal_id(internal_id);
-  }
-  catch (std::exception& e){
+  } catch (std::exception& e) {
     Logger::flexcn_app().error(e.what());
-    return false;      
+    return false;
   }
   return true;
 }
 
-bool App4G::delete_all_bearers(){
+bool App4G::delete_all_bearers() {
   return m_database_wrapper->delete_all();
 }
 
-std::vector<Bearer> App4G::get_stats(){
+std::vector<Bearer> App4G::get_stats() {
   std::vector<Bearer> stats = m_database_wrapper->get_all_rows();
   return stats;
 }
 
-std::vector<Bearer> App4G::get_stats_by_imsi_bearer(const std::string &imsiBearer)
-{
+std::vector<Bearer> App4G::get_stats_by_imsi_bearer(
+    const std::string& imsiBearer) {
   Logger::flexcn_app().info("Received this request: ", imsiBearer.c_str());
   std::vector<Bearer> stats;
   try {
-    std::vector<std::string> imsi_and_bearer_id =  split(imsiBearer, ',');
-    std::string imsi = imsi_and_bearer_id[0];
-    unsigned int bearer_id = (unsigned int) std::stoul(imsi_and_bearer_id[1], nullptr, 0);
+    std::vector<std::string> imsi_and_bearer_id = split(imsiBearer, ',');
+    std::string imsi                            = imsi_and_bearer_id[0];
+    unsigned int bearer_id =
+        (unsigned int) std::stoul(imsi_and_bearer_id[1], nullptr, 0);
     stats = m_database_wrapper->get_row_by_imsi_bearer_id(imsi, bearer_id);
-  } 
-  catch (std::exception& e){
-      Logger::flexcn_app().error(e.what());      
-  }  
+  } catch (std::exception& e) {
+    Logger::flexcn_app().error(e.what());
+  }
   return stats;
 }
 
-std::vector<Bearer> App4G::get_stats_by_id(const std::string &id){
+std::vector<Bearer> App4G::get_stats_by_id(const std::string& id) {
   std::vector<Bearer> stats;
   std::cout << "Get data for id :" << id << std::endl;
   try {
-      unsigned int uinteger_id = (unsigned int) std::stol(id);
-      Logger::flexcn_app().info("Get data for id : %d", uinteger_id);
-      stats = m_database_wrapper->get_row_by_id(uinteger_id);
-  } 
-  catch (std::exception& e){
-      Logger::flexcn_app().error(e.what());      
+    unsigned int uinteger_id = (unsigned int) std::stol(id);
+    Logger::flexcn_app().info("Get data for id : %d", uinteger_id);
+    stats = m_database_wrapper->get_row_by_id(uinteger_id);
+  } catch (std::exception& e) {
+    Logger::flexcn_app().error(e.what());
   }
 
   return stats;
-} 
+}

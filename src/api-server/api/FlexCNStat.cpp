@@ -34,8 +34,7 @@ namespace api {
 using namespace oai::flexcn_server::helpers;
 using namespace oai::flexcn_server::model;
 
-FlexCNStat::FlexCNStat(
-    std::shared_ptr<Pistache::Rest::Router> rtr) {
+FlexCNStat::FlexCNStat(std::shared_ptr<Pistache::Rest::Router> rtr) {
   router = rtr;
 }
 
@@ -50,8 +49,9 @@ void FlexCNStat::setupRoutes() {
       *router, base + flexcn_cfg.sbi_api_version + "/stats",
       Routes::bind(&FlexCNStat::stat_request_handler, this));
 
-  Logger::flexcn_api_server().info( "Full path to query FlexCN is: ");
-  Logger::flexcn_api_server().info((base + flexcn_cfg.sbi_api_version + "/stats").c_str());
+  Logger::flexcn_api_server().info("Full path to query FlexCN is: ");
+  Logger::flexcn_api_server().info(
+      (base + flexcn_cfg.sbi_api_version + "/stats").c_str());
 
   // Default handler, called when a route is not found
   router->addCustomHandler(
@@ -61,7 +61,6 @@ void FlexCNStat::setupRoutes() {
 void FlexCNStat::stat_request_handler(
     const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
-
   try {
     this->receive_stat_request(response);
   } catch (nlohmann::detail::exception& e) {

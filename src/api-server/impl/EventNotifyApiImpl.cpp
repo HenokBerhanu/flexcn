@@ -45,23 +45,22 @@ namespace api {
 using namespace oai::flexcn_server::model;
 
 EventNotifyApiImpl::EventNotifyApiImpl(
-    std::shared_ptr<Pistache::Rest::Router> rtr,
-    std::string address)
+    std::shared_ptr<Pistache::Rest::Router> rtr, std::string address)
     : EventNotifyApi(rtr), m_address(address) {}
 
 void EventNotifyApiImpl::receive_status_notification(
-    const std::string& notifRef,
-    const std::string& eventExposureNotification,
+    const std::string& notifRef, const std::string& eventExposureNotification,
     Pistache::Http::ResponseWriter& response) {
-    Logger::flexcn_api_server().info("NotifRef: %s", notifRef.c_str());    
-    Logger::flexcn_api_server().info("Received data: %s", eventExposureNotification.c_str());
-    
-    m_iapps[notifRef]->persist_data(eventExposureNotification, "", 0);       
-    response.send(Pistache::Http::Code(200));
+  Logger::flexcn_api_server().info("NotifRef: %s", notifRef.c_str());
+  Logger::flexcn_api_server().info(
+      "Received data: %s", eventExposureNotification.c_str());
+
+  m_iapps[notifRef]->persist_data(eventExposureNotification, "", 0);
+  response.send(Pistache::Http::Code(200));
 }
 
 void EventNotifyApiImpl::add_iapp(std::shared_ptr<MonitoringAppAPI> iapp) {
-    m_iapps[iapp->get_notif_ref()] = iapp;
+  m_iapps[iapp->get_notif_ref()] = iapp;
 }
 
 }  // namespace api

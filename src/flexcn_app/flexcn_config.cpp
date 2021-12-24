@@ -79,7 +79,8 @@ int flexcn_config::load_interface(const Setting& if_cfg, interface_cfg_t& cfg) {
           words, address, boost::is_any_of("/"), boost::token_compress_on);
       if (words.size() != 2) {
         Logger::flexcn_app().error(
-            "Bad value " FLEXCN_CONFIG_STRING_IPV4_ADDRESS " = %s in config file",
+            "Bad value " FLEXCN_CONFIG_STRING_IPV4_ADDRESS
+            " = %s in config file",
             address.c_str());
         return RETURNerror;
       }
@@ -137,7 +138,7 @@ int flexcn_config::load(const string& config_file) {
     Logger::flexcn_app().error("%s : %s", nfex.what(), nfex.getPath());
     return RETURNerror;
   }
-  
+
   const Setting& flexcn_cfg = root[FLEXCN_CONFIG_STRING_FLEXCN_CONFIG];
 
   try {
@@ -155,8 +156,8 @@ int flexcn_config::load(const string& config_file) {
   }
 
   try {
-  const Setting& amf_cfg = flexcn_cfg[FLEXCN_CONFIG_STRING_AMF];
-  load_nf_info(amf_cfg, amf_info);
+    const Setting& amf_cfg = flexcn_cfg[FLEXCN_CONFIG_STRING_AMF];
+    load_nf_info(amf_cfg, amf_info);
 
   } catch (const SettingNotFoundException& nfex) {
     Logger::flexcn_app().error("%s : %s", nfex.what(), nfex.getPath());
@@ -167,11 +168,11 @@ int flexcn_config::load(const string& config_file) {
     const Setting& smf_cfg = flexcn_cfg[FLEXCN_CONFIG_STRING_SMF];
     load_nf_info(smf_cfg, smf_info);
 
-    } catch (const SettingNotFoundException& nfex) {
-      Logger::flexcn_app().error("%s : %s", nfex.what(), nfex.getPath());
-      return RETURNerror;
-    }
-  
+  } catch (const SettingNotFoundException& nfex) {
+    Logger::flexcn_app().error("%s : %s", nfex.what(), nfex.getPath());
+    return RETURNerror;
+  }
+
   try {
     const Setting& sbi_cfg = flexcn_cfg[FLEXCN_CONFIG_STRING_INTERFACE_SBI];
     load_interface(sbi_cfg, sbi);
@@ -194,8 +195,6 @@ int flexcn_config::load(const string& config_file) {
     Logger::flexcn_app().error("%s : %s", nfex.what(), nfex.getPath());
     return RETURNerror;
   }
-  
-
 
   return true;
 }
@@ -209,8 +208,10 @@ void flexcn_config::display() {
   Logger::flexcn_app().info("- PID dir ...............: %s\n", pid_dir.c_str());
 
   Logger::flexcn_app().info("- SBI Interface:");
-  Logger::flexcn_app().info("    Interface name ......: %s", sbi.if_name.c_str());
-  Logger::flexcn_app().info("    IPv4 Addr ...........: %s", inet_ntoa(sbi.addr4));
+  Logger::flexcn_app().info(
+      "    Interface name ......: %s", sbi.if_name.c_str());
+  Logger::flexcn_app().info(
+      "    IPv4 Addr ...........: %s", inet_ntoa(sbi.addr4));
   Logger::flexcn_app().info("    Port ................: %d", sbi.port);
   Logger::flexcn_app().info("    HTTP2 port ..........: %d", sbi_http2_port);
   Logger::flexcn_app().info(

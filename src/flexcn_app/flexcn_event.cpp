@@ -61,5 +61,4 @@ bs2::connection flexcn_event::subscribe_task_tick_extended(
   return task_tick.connect_extended(f);
 }
 
-
 using namespace oai::flexcn::app;
