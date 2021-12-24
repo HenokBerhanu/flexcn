@@ -1,0 +1,164 @@
+openapi: 3.0.0
+info:
+  title: FlexCN Northbound API
+  description: |
+    This API allows xApps to communicate with FlexCN.
+  version: 1.0.0
+
+servers:
+  - url: '{apiRoot}/nxapp/v1'
+    variables:
+      apiRoot:
+        default: https://example.com
+        description:  The Northbound API of this service.
+
+
+paths:
+  # Whole stats
+  /stats:
+    get:
+      summary: return every stats that FlexCN has. 
+      description: Retrieves all stats that FlexCN received from 5G core components without processing.
+      operationId: getStats
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/networkStats"
+
+  # stats per each ue
+  /stats/{ueid}:
+    parameters:
+      - $ref: "#/components/parameters/ueid"
+    get:
+      summary: Get stats for a single ue. 
+      description: Retrieves all the stats that are related to a given ue, 
+                   after aggregating information from mutiple sources.
+      operationId: getStatsPerUE
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: The provided parameters are incorrect
+          content:
+            text/html:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+              example: "Illegal coordinates"
+  # stats per each ue
+  /trigger_subcribe/{ueid}:
+    parameters:
+      - $ref: "#/components/parameters/ueid"
+    get:
+      summary: Trigger a subcription for a single ue. 
+      description: Inform FlexCN that this xapp would like to subcribe to a specific ue. 
+      operationId: trigger_subcribe
+      responses:
+        "200":
+          description: "OK"          
+        "400":
+          description: The provided parameters are incorrect
+
+components:
+  parameters:
+    ueid:
+      description: id of each ue
+      name: ueid
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/ueid"      
+  schemas:
+    networkStats:
+      type: array
+      minItems: 0
+      description: An array of information.
+      items:
+        $ref: "#/components/schemas/event"
+    errorMessage:
+      type: string
+      maxLength: 256
+      description: A text message describing an error
+    ueid:
+      type: string
+      description: a short form unique determine id of ue and 4g/5g services it is using.
+      example: "imsi-11111111111"
+    smfEvent:
+      type: object
+      properties:
+        ueid:
+          $ref: "#/components/schemas/ueid"
+        event:
+          $ref: "#/components/schemas/eventDetails"
+    # TODO: AMF Events, UDM events, 
+    eventDetails:
+      type: string
+      maxLength: 256
+      description: A text message describing an error
+    event:
+      type: object
+      description: A text message describing an error
+      oneOf:
+        - $ref: "#/components/schemas/smfEvent"
+    statPerUE:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ueid"
+        event:
+          $ref: "#/components/schemas/event"
+
+    flowProfile:
+      type: object
+      properties:
+        an_addr:
+          type: string
+        upf_addr:
+          type: string
+        qfi:
+          type: integer
+    
+    Snssai:
+      type: object
+      properties:
+        sst:
+          type: integer
+          minimum: 0
+          maximum: 255
+        sd:
+          type: string
+          pattern: '^[A-Fa-f0-9]{6}$'
+      required:
+        - sst
+        
+    SessionProfile:
+      type: object
+      properties:
+        supi:
+          type: string
+        dnn:
+          type: string
+        amf_addr:
+          type: string
+        pdu_session_type:
+          type: string
+        plmnId:
+          type: integer
+        pduSeId:
+          type: integer
+        # dddStatus
+        # sourceDnai
+        adIpv4Addr:
+          type: string
+        # targetUeIpv4Addr
+        snssai:
+          $ref: "#/components/schemas/Snssai"
+        flows:
+          type: array
+          minItems: 0
+          items:
+            $ref: "#/components/schemas/flowProfile"
+
+

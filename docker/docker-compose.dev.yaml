@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+    oai-flexcn:
+        container_name: "oai-flexcn"
+        image: flexcn/demo_dev:version1
+        environment:
+            - CN_VERSION=5
+            - FLEXCN_INTERFACE_NAME_FOR_SBI=eth0
+            - FLEXCN_INTERFACE_PORT_FOR_SBI=80
+            - FLEXCN_INTERFACE_HTTP2_PORT_FOR_SBI=9090
+            - FLEXCN_API_VERSION=v1
+            - INSTANCE=0
+            - PID_DIRECTORY=/var/run
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.136
+        volumes:
+            - ./flexcn-healthcheck.sh:/openair-flexcn/bin/flexcn-healthcheck.sh
+        healthcheck:
+            test: /bin/bash -c "/openair-flexcn/bin/flexcn-healthcheck.sh"
+            interval: 10s
+            timeout: 5s
+            retries: 5
+networks:
+    # public_net:
+    #     external:
+    #         name: demo-oai-public-net
+    public_net:
+        driver: bridge
+        name: demo-oai-public-net
+        ipam:
+            config:
+                - subnet: 192.168.70.128/26
+        driver_opts:
+            com.docker.network.bridge.name: "demo-oai"

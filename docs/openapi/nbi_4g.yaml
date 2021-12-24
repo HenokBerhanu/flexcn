@@ -1,0 +1,196 @@
+openapi: 3.0.0
+info:
+  title: FlexCN_4G_API
+  description: |
+    This API allows SPGWC to communicate with FlexCN. Equivalent of LLMEC API. 
+  version: 1.0.0
+
+servers:
+  - url: '{apiRoot}/n4g/v1'
+    variables:
+      apiRoot:
+        default: https://example.com
+        description:  The Northbound API of this service.
+
+
+paths:
+  # Whole stats
+  /bearer:
+    get:
+      summary: return every stats that FlexCN has. 
+      description: Retrieves all stats that FlexCN received from 5G core components without processing.
+      operationId: getStats
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BearerArray"
+
+    post:
+      summary: Adds a new user
+      requestBody:
+        content:
+          application/json:     # Media type
+            schema:             # Request body contents
+              $ref: '#/components/schemas/Bearer'   # Reference to an object
+      operationId: addBearer
+      responses:
+        '200':
+          description: OK
+        "400":
+          description: The provided parameters are incorrect
+          content:
+            text/html:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+              example: "Bad request"
+
+    delete:
+      summary: TBD
+      operationId: deleteAllBearers
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: The provided parameters are incorrect
+          content:
+            text/html:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+              example: "Bad request"
+        
+  /bearer/id/{id}:
+    parameters:
+      - $ref: "#/components/parameters/id"
+    get:
+      summary: return every stats that FlexCN has. 
+      description: Retrieves all stats that FlexCN received from 5G core components without processing.
+      operationId: getStatsById
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bearer"
+
+    delete:
+      summary: TBD
+      operationId: deleteASingleBearerById
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: The provided parameters are incorrect
+          content:
+            text/html:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+              example: "Bad request"
+
+  /bearer/imsi_bearer/{imsi_bearer}:
+    parameters:
+      - $ref: "#/components/parameters/imsi_bearer"
+    get:
+      summary: return every stats that FlexCN has. 
+      description: Retrieves all stats that FlexCN received from 5G core components without processing.
+      operationId: getStatsByIMSIBearer
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bearer"
+
+    delete:
+      summary: TBD
+      operationId: deleteASingleBearerByIMSIBearer
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: The provided parameters are incorrect
+          content:
+            text/html:
+              schema:
+                $ref: "#/components/schemas/errorMessage"
+              example: "Bad request"              
+
+components:
+  parameters:
+    id:
+      description: id of each Bearer
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/id"
+    imsi_bearer:
+      description: id of each Bearer
+      name: imsi_bearer
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/imsi_bearer"      
+  schemas:
+    id:
+      type: string
+      maxLength: 256
+    imsi_bearer:
+      # TODO: write the description here "A,B"
+      type: string
+      maxLength: 256
+      example: "208950000000009,1"
+    errorMessage:
+      type: string
+      maxLength: 256
+      description: A text message describing an error
+    Bearer:
+      type: object
+      required:
+        - eps_bearer_id
+        - imsi
+        - s1_ul_teid
+        - s1_dl_teid
+        - ue_ip
+        - enb_ip
+      properties:
+        eps_bearer_id:
+          type: integer
+          format: int64
+        slice_id:
+          type: integer
+          format: int64
+          description: (optional) Slice ID. 
+          default: 0
+        
+        tos:
+          type: integer
+          format: int64	
+          description: (optional) Type of service including DSCP and ECN. 
+          default: 0
+        imsi:
+          type: string
+        s1_ul_teid:
+          type: string
+          description: S1 downlink tunnel ID
+        s1_dl_teid:
+          type: string
+          description: S1 uplink tunnel ID
+        ue_ip:
+          type: string
+          description: IP address of UE
+        enb_ip:
+          type: string
+          description: IP address of eNodeB
+    BearerArray:
+      type: array
+      minItems: 0
+      description: An array of Bearer.
+      items:
+        $ref: "#/components/schemas/Bearer"
+
+        

@@ -1,0 +1,1 @@
+curl -X GET http://192.168.70.142:80/nxapp/v1/stats
