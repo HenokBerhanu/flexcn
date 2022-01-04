@@ -278,8 +278,6 @@ std::string AMFApp::retrieve_all_data() {
   if (obj.size() > 0) {
     nlohmann::json j = {};
     nlohmann::to_json(j, obj);
-    // // clear data once it is returned to the xapp
-    // m_database_wrapper->delete_by_key(supi, -1);
     return j.dump(4).c_str();
   }
 

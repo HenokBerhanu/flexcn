@@ -33,10 +33,8 @@
 #include <string>
 #include "SessionProfile.h"
 
-// typedef SMFData SMFData;
 typedef std::string SMFData;
 
-// #include "Bearer.h"
 using namespace oai::flexcn_server::model;
 
 class Database5GWrapper {

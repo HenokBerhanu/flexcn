@@ -57,13 +57,12 @@ private:
   std::vector<AMFData> select_query(std::string str_query);
   AMFData get_a_amf_data_from_a_cass_row(const CassRow* row);
   std::vector<AMFData> get_amf_data_from_cass_result(const CassResult* result);
-  // int query_index(std::string imsi, int bearerID);
 
 public:
     Cassandra5GDB(const std::string& database_ip);
     ~Cassandra5GDB();
 
-    bool insert_5g_context(const AMFData& bearer,const std::string& ids, int id); // const AMFData& data
+    bool insert_5g_context(const AMFData& bearer,const std::string& ids, int id);
     bool delete_by_internal_id(int id);
     bool delete_by_imsi_bearer_id(std::string imsi, int bearerID);
     bool delete_all();

@@ -128,10 +128,7 @@ std::vector<Bearer> Local4GDB::get_row_by_id(int id) {
 std::vector<Bearer> Local4GDB::get_row_by_imsi_bearer_id(
     std::string imsi, int bearerID) {
   std::vector<Bearer> stats;
-  // for (const auto & [key, value] : m_imsi_bearer_id_to_main_id[imsi])
-  // {
   stats.push_back(
       Bearer(m_main_database_4g[m_imsi_bearer_id_to_main_id[imsi][bearerID]]));
-  // }
   return stats;
 }

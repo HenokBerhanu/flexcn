@@ -52,9 +52,6 @@ private:
   std::string m_space;
   std::string m_table_4g_context;
 
-
-
-
   CassError query(std::string str_query);
   void setup_insert_query();
   void create_space_and_table(std::string space_name, std::string table_name);
@@ -67,7 +64,7 @@ public:
     Cassandra4GDB(const std::string& database_ip);
     ~Cassandra4GDB();
 
-    bool insert_4g_context(const Bearer& bearer, int id); // const Bearer& data
+    bool insert_4g_context(const Bearer& bearer, int id);
     bool delete_by_internal_id(int id);
     bool delete_by_imsi_bearer_id(std::string imsi, int bearerID);
     bool delete_all();

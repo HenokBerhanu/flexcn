@@ -43,7 +43,6 @@ private:
   std::map<
       std::string,  // ueid
       std::map<int,SMFData>>  m_main_database_5g;
-  // std::map<std::string, std::map<unsigned int, unsigned int>> m_imsi_bearer_id_to_main_id;
 
 public:
     Local5GDB(const std::string& database_ip);

@@ -36,8 +36,7 @@ Cassandra4GDB::Cassandra4GDB(const std::string& database_ip)
   m_cluster = cass_cluster_new();
   m_session = cass_session_new();
 
-  //
-  m_database_IP      = database_ip;  // "192.168.74.3"
+  m_database_IP      = database_ip;
   m_space            = "store";
   m_table_4g_context = "context_4G";
 
@@ -64,15 +63,14 @@ Cassandra4GDB::~Cassandra4GDB() {
   cass_cluster_free(m_cluster);
   cass_future_free(m_connect_future);
 
-  std::cout << "Clean alll" << std::endl;
+  std::cout << "Clean all" << std::endl;
 }
 
 void Cassandra4GDB::setup_insert_query() {
   std::string str_insert_4g_query =
       "INSERT INTO " + m_space + "." + m_table_4g_context +
       " (row_id, eps_bearer_id,eps_meter_id,imsi,s1_ul_teid, s1_dl_teid, "
-      "ue_ip,enb_ip) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";  // row_id
-  // CassString insert_query = cass_string_init(str_insert_4g_query.c_str());
+      "ue_ip,enb_ip) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
   /* Prepare the statement on the Cassandra cluster */
   CassFuture* prepare_future =
@@ -103,29 +101,20 @@ CassError Cassandra4GDB::query(std::string str_query) {
 
   /* Create a statement with zero parameters */
   CassStatement* statement = cass_statement_new(str_query.c_str(), 0);
-
   CassFuture* query_future = cass_session_execute(m_session, statement);
-
-  // // check if query contains SELECT
 
   /* Statement objects can be freed immediately after being executed */
   cass_statement_free(statement);
 
   /* This will block until the query has finished */
   CassError rc = cass_future_error_code(query_future);
-
-  // printf("Query result: %s\n", cass_error_desc(rc));
-  // rc.
-
   cass_future_free(query_future);
   return rc;
 }
 
 std::vector<Bearer> Cassandra4GDB::select_query(std::string str_query) {
   /* Build statement and execute query */
-
   CassStatement* statement = cass_statement_new(str_query.c_str(), 0);
-
   CassFuture* result_future = cass_session_execute(m_session, statement);
 
   std::vector<Bearer> v_b;
@@ -158,9 +147,7 @@ int Cassandra4GDB::query_index(std::string imsi, int bearerID) {
                       "\' and eps_bearer_id= " + std::to_string(bearerID) + ";";
   std::cout << query << std::endl;
   CassStatement* statement = cass_statement_new(query.c_str(), 0);
-
   CassFuture* result_future = cass_session_execute(m_session, statement);
-
   const CassResult* result = cass_future_get_result(result_future);
 
   /* If there was an error then the result won't be available */
@@ -187,12 +174,9 @@ int Cassandra4GDB::query_index(std::string imsi, int bearerID) {
 
     return value;
   }
-
   std::cout << "no item match this condition" << std::endl;
-
   /* This will free the result as well as the string pointed to by 'key' */
   cass_result_free(result);
-
   return -1;
 }
 
@@ -277,7 +261,7 @@ void Cassandra4GDB::create_space_and_table(
   rc = query(
       "CREATE TABLE " + space_name + "." + table_name +
       " (row_id int PRIMARY KEY, eps_bearer_id int, eps_meter_id int, imsi "
-      "text, s1_ul_teid text, s1_dl_teid text, ue_ip text, enb_ip text);");  // , row_id int
+      "text, s1_ul_teid text, s1_dl_teid text, ue_ip text, enb_ip text);");
 
   if (rc != CASS_OK) {
     std::cout << "Failed to set up the new table" << std::endl;
@@ -296,7 +280,7 @@ void Cassandra4GDB::create_space_and_table(
   rc = query(
       "CREATE TABLE " + space_name + "." + table_name +
       "_by_row_id (row_id int, eps_bearer_id int, imsi text, PRIMARY KEY(imsi, "
-      "eps_bearer_id));");  // , row_id int
+      "eps_bearer_id));");
 
   if (rc != CASS_OK) {
     std::cout << "Failed to set up the new table" << std::endl;
@@ -308,9 +292,7 @@ void Cassandra4GDB::create_space_and_table(
 bool Cassandra4GDB::insert_4g_context(const Bearer& bearer, int id) {
   /* Bind variables by name this time (this can only be done with prepared
    * statements)*/
-
   m_insert_4g_statement = cass_prepared_bind(m_insert_4g_prepared);
-
   cass_statement_bind_int32_by_name(m_insert_4g_statement, "row_id", id);
 
   cass_statement_bind_int32_by_name(
@@ -319,17 +301,17 @@ bool Cassandra4GDB::insert_4g_context(const Bearer& bearer, int id) {
       m_insert_4g_statement, "eps_meter_id", bearer.getEpsMeterId());
 
   /// (optional) Type of service including DSCP and ECN.
-  // int64_t getTos() const;
-
   cass_statement_bind_string_by_name(
       m_insert_4g_statement, "imsi", bearer.getImsi().c_str());
 
+  // TODO: set this to debug mode
   std::cout << "INSERT INTO " + m_space + "." + m_table_4g_context +
                    "_by_row_id (row_id, eps_bearer_id,imsi) VALUES (" +
                    std::to_string(id) + "," +
                    std::to_string(bearer.getEpsBearerId()) + "," +
                    bearer.getImsi() + " );"
             << std::endl;
+
   CassError rc = query(
       "INSERT INTO " + m_space + "." + m_table_4g_context +
       "_by_row_id (row_id, eps_bearer_id,imsi) VALUES (" + std::to_string(id) +

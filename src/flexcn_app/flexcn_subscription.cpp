@@ -74,13 +74,6 @@ void flexcn_subscription::get_sub_condition(subscription_condition_t& c) const {
 }
 
 //------------------------------------------------------------------------------
-/*
-subscription_condition_t flexcn_subscription::get_sub_condition() const {
-  return sub_condition;
-}
-*/
-
-//------------------------------------------------------------------------------
 void flexcn_subscription::set_notif_events(
     const std::vector<uint8_t>& ev_types) {
   notif_events = ev_types;

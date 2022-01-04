@@ -65,13 +65,6 @@ void task_manager::manage_tasks() {
   uint64_t t = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
                    .count();
-
-  // // TODO: Disable for the first release
-  // while (1) {
-  //   event_sub_.task_tick(t);
-  //   t++;
-  //   wait_for_cycle();
-  // }
 }
 
 //------------------------------------------------------------------------------

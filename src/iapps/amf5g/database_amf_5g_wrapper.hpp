@@ -33,11 +33,7 @@
 #include <string>
 #include <vector>
 
-// typedef AMFData AMFData;
 typedef std::string AMFData;
-
-// using namespace oai::flexcn_server::model;
-
 class Database5GAMFWrapper {
 public:
   Database5GAMFWrapper(const std::string& database_ip){};

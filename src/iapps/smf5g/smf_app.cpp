@@ -108,7 +108,6 @@ bool trigger_pdu_session_status_notification_subscribe(
   itti_msg->json_data = json_data;
   Logger::flexcn_app().info(json_data.dump().c_str());
 
-  // bool res = subscribe_smf_event_exposure_service(itti_msg);
   bool res = subscribe_nf_event_exposure_service(itti_msg, "SMF");
 
   // if return failed.
@@ -204,14 +203,10 @@ std::string SMFApp::retrieve_data_by_key(const std::string& supi) {
 
 std::string SMFApp::retrieve_all_data() {
   std::vector<SMFData> obj = m_database_wrapper->get_all_rows();
-
   if (obj.size() > 0) {
     nlohmann::json j = {};
     nlohmann::to_json(j, obj);
-    // // clear data once it is returned to the xapp
-    // m_database_wrapper->delete_by_key(supi, -1);
     return j.dump(4).c_str();
   }
-
   return "";
 }

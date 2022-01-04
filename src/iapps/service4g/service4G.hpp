@@ -58,10 +58,7 @@ class Service4G : public iApp_api {
     m_app4G = std::make_shared<App4G>(db_addr);
     m_northBound4GApiImpl = std::make_shared<NorthBound4GApiImpl>(
         m_router,m_app4G);
-
     // change according to the build's options
-    
-    
   }
   void init(size_t thr = 1);
   void start();

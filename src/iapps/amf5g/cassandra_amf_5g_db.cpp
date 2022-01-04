@@ -37,8 +37,7 @@ Cassandra5GDB::Cassandra5GDB(const std::string& database_ip)
   m_cluster = cass_cluster_new();
   m_session = cass_session_new();
 
-  //
-  m_database_IP      = database_ip;  // "192.168.74.3"
+  m_database_IP      = database_ip; 
   m_space            = "store";
   m_table_5g_context = "context_5G";
 
@@ -72,7 +71,6 @@ void Cassandra5GDB::setup_insert_query() {
   std::string str_insert_5g_query =
       "INSERT INTO " + m_space + "." + m_table_5g_context +
       " (row_id, extra_id, supi, data) VALUES (?, ?, ?, ?);";
-  // CassString insert_query = cass_string_init(str_insert_5g_query.c_str());
 
   /* Prepare the statement on the Cassandra cluster */
   CassFuture* prepare_future =
@@ -103,19 +101,13 @@ CassError Cassandra5GDB::query(std::string str_query) {
 
   /* Create a statement with zero parameters */
   CassStatement* statement = cass_statement_new(str_query.c_str(), 0);
-
   CassFuture* query_future = cass_session_execute(m_session, statement);
-
-  // // check if query contains SELECT
 
   /* Statement objects can be freed immediately after being executed */
   cass_statement_free(statement);
 
   /* This will block until the query has finished */
   CassError rc = cass_future_error_code(query_future);
-
-  // printf("Query result: %s\n", cass_error_desc(rc));
-  // rc.
 
   cass_future_free(query_future);
   return rc;
@@ -125,7 +117,6 @@ std::vector<AMFData> Cassandra5GDB::select_query(std::string str_query) {
   /* Build statement and execute query */
 
   CassStatement* statement = cass_statement_new(str_query.c_str(), 0);
-
   CassFuture* result_future = cass_session_execute(m_session, statement);
 
   std::vector<AMFData> v_b;

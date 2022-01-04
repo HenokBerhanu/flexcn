@@ -45,8 +45,6 @@ public:
 
    virtual int subcribe_to_nf() = 0;
    virtual int unsubcribe_to_nf() = 0;
-   // this signature is a subject to change
-   // virtual int handle_xapp_request(const std::string& msg) = 0;
    
    // southbound handle
    virtual bool persist_data(const std::string& data, const std::string& id_str, int id_number) = 0;

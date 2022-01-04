@@ -52,7 +52,6 @@ public:
     bool set_attribute(std::string attribute, std::string value, std::string type){};
     int subcribe_to_nf();
     int unsubcribe_to_nf() {
-        // TODO
     };
     nf_type_t get_type() const {
         return nf_type_t::NF_TYPE_SMF;
@@ -90,10 +89,7 @@ public:
 private:
     std::shared_ptr<Database5GWrapper> m_database_wrapper;
     std::string m_flexcn_ip, m_smf_ip;
-    int m_flexcn_port, m_smf_port;
-
-    // bool send_to_database(const SMFData& data);
- 
+    int m_flexcn_port, m_smf_port; 
 };
 
 #endif

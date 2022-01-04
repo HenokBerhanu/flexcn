@@ -47,7 +47,7 @@ public:
     Local4GDB(const std::string& database_ip);
     ~Local4GDB();
 
-    bool insert_4g_context(const Bearer& bearer, int id); // const Bearer& data
+    bool insert_4g_context(const Bearer& bearer, int id); 
     bool delete_by_internal_id(int id);
     bool delete_by_imsi_bearer_id(std::string imsi, int bearerID);
     bool delete_all();

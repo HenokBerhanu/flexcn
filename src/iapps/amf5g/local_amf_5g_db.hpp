@@ -34,16 +34,13 @@
 #include <map>
 #include "database_amf_5g_wrapper.hpp"
 
-// using namespace oai::flexcn_server::model;
 
 class Local5GAMFDB : public Database5GAMFWrapper {
-
 private:
   //5g data
   std::map<
       std::string,  // ueid
       std::map<int,AMFData>>  m_main_database_5g;
-  // std::map<std::string, std::map<unsigned int, unsigned int>> m_imsi_bearer_id_to_main_id;
 
 public:
     Local5GAMFDB(const std::string& database_ip);

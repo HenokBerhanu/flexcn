@@ -38,7 +38,7 @@ Cassandra5GDB::Cassandra5GDB(const std::string& database_ip)
   m_session = cass_session_new();
 
   //
-  m_database_IP      = database_ip;  // "192.168.74.3"
+  m_database_IP      = database_ip;
   m_space            = "store";
   m_table_5g_context = "context_5G";
 
@@ -64,7 +64,7 @@ Cassandra5GDB::~Cassandra5GDB() {
   cass_session_free(m_session);
   cass_cluster_free(m_cluster);
   cass_future_free(m_connect_future);
-
+  // TODO: change to debug mode 
   std::cout << "Clean alll" << std::endl;
 }
 
@@ -72,7 +72,6 @@ void Cassandra5GDB::setup_insert_query() {
   std::string str_insert_5g_query =
       "INSERT INTO " + m_space + "." + m_table_5g_context +
       " (row_id, extra_id, supi, data) VALUES (?, ?, ?, ?);";
-  // CassString insert_query = cass_string_init(str_insert_5g_query.c_str());
 
   /* Prepare the statement on the Cassandra cluster */
   CassFuture* prepare_future =
@@ -103,29 +102,20 @@ CassError Cassandra5GDB::query(std::string str_query) {
 
   /* Create a statement with zero parameters */
   CassStatement* statement = cass_statement_new(str_query.c_str(), 0);
-
   CassFuture* query_future = cass_session_execute(m_session, statement);
-
-  // // check if query contains SELECT
 
   /* Statement objects can be freed immediately after being executed */
   cass_statement_free(statement);
 
   /* This will block until the query has finished */
   CassError rc = cass_future_error_code(query_future);
-
-  // printf("Query result: %s\n", cass_error_desc(rc));
-  // rc.
-
   cass_future_free(query_future);
   return rc;
 }
 
 std::vector<SMFData> Cassandra5GDB::select_query(std::string str_query) {
   /* Build statement and execute query */
-
   CassStatement* statement = cass_statement_new(str_query.c_str(), 0);
-
   CassFuture* result_future = cass_session_execute(m_session, statement);
 
   std::vector<SMFData> v_b;
@@ -151,54 +141,6 @@ std::vector<SMFData> Cassandra5GDB::select_query(std::string str_query) {
   cass_future_free(result_future);
   return v_b;
 }
-
-// int Cassandra5GDB::query_index(std::string imsi, int bearerID) {
-//     std::string query =  "SELECT row_id FROM "  + m_space + "." +
-//     m_table_5g_context +
-//                 "_by_row_id WHERE imsi=\'" + imsi + "\' and eps_bearer_id= "
-//                 + std::to_string(bearerID) + ";";
-//     std::cout << query << std::endl;
-//     CassStatement* statement = cass_statement_new(query.c_str(), 0);
-
-//     CassFuture* result_future = cass_session_execute(m_session, statement);
-
-//     const CassResult* result = cass_future_get_result(result_future);
-
-//     /* If there was an error then the result won't be available */
-//     if (result == NULL) {
-//         cass_future_free(result_future);
-//         return -1;
-//     }
-
-//     /* The future can be freed immediately after getting the result object */
-//     cass_future_free(result_future);
-
-//     /* This can be used to retrieve the first row of the result */
-//     const CassRow* row = cass_result_first_row(result);
-
-//     if (row)
-//     {
-//         /* Now we can retrieve the column values from the row */
-//         cass_int32_t value;
-
-//         /* Get the column value of "value" by name */
-//         cass_value_get_int32(cass_row_get_column_by_name(row, "row_id"),
-//         &value);
-
-//         /* This will free the result as well as the string pointed to by
-//         'key' */ cass_result_free(result);
-
-//         return value;
-//     }
-
-//     std::cout << "no item match this condition" << std::endl;
-
-//     /* This will free the result as well as the string pointed to by 'key' */
-//         cass_result_free(result);
-
-//     return -1;
-
-// }
 
 std::string get_string_from_cass_value(
     const CassRow* row, std::string name_col) {
@@ -267,23 +209,6 @@ void Cassandra5GDB::create_space_and_table(
     std::cout << "Success to set up the new table" << std::endl;
   }
 
-  //   rc = query("DROP TABLE IF EXISTS " + space_name + "."  + table_name +
-  //   "_by_supi"); if (rc != CASS_OK) {
-  //       std::cout << "Failed to drop table if exists" << std::endl;
-  //   }
-  //   else {
-  //       std::cout << "Success to drop table if exists" << std::endl;
-  //   }
-
-  //   rc = query("CREATE TABLE " + space_name + "."  + table_name + "_by_supi
-  //   (row_id int, supi text, PRIMARY KEY(supi));");
-
-  //   if (rc != CASS_OK) {
-  //       std::cout << "Failed to set up the new table" << std::endl;
-  //   }
-  //   else {
-  //       std::cout << "Success to set up the new table" << std::endl;
-  //   }
 }
 
 std::string to_text(const SMFData& data) {
@@ -307,38 +232,6 @@ bool Cassandra5GDB::insert_5g_context(
   cass_statement_bind_string_by_name(
       m_insert_5g_statement, "data", to_text(data).c_str());
 
-  // std::cout << "INSERT INTO " + m_space + "."  + m_table_5g_context + "
-  // (row_id, supi) VALUES ("
-  //                     + std::to_string(id) + "," +
-  //                     std::to_string(bearer.getEpsSMFDataId()) + "," +
-  //                     bearer.getImsi() +" );" << std::endl;
-  // CassError rc = query("INSERT INTO " + m_space + "."  + m_table_5g_context +
-  // "_by_row_id (row_id, eps_bearer_id,imsi) VALUES ("
-  //                     + std::to_string(id) + "," +
-  //                     std::to_string(bearer.getEpsSMFDataId()) + ",\'" +
-  //                     bearer.getImsi() +"\' );");
-
-  // if (rc != CASS_OK) {
-  //   std::cout << "Failed to insert into table by row id" << std::endl;
-  //         }
-
-  // /// S1 downlink tunnel ID
-  // cass_statement_bind_string_by_name(m_insert_5g_statement, "s1_ul_teid",
-  // bearer.getS1UlTeid().c_str());
-
-  // /// S1 uplink tunnel ID
-  // cass_statement_bind_string_by_name(m_insert_5g_statement, "s1_dl_teid",
-  // bearer.getS1DlTeid().c_str());
-
-  // /// IP address of UE
-  // cass_statement_bind_string_by_name(m_insert_5g_statement, "ue_ip",
-  // bearer.getUeIp().c_str());
-
-  // /// IP address of eNodeB
-  // cass_statement_bind_string_by_name(m_insert_5g_statement, "enb_ip",
-  // bearer.getEnbIp().c_str());
-
-  /* Execute statement (same a the non-prepared code) */
   CassFuture* query_future =
       cass_session_execute(m_session, m_insert_5g_statement);
 
@@ -359,36 +252,6 @@ bool Cassandra5GDB::insert_5g_context(
 }
 
 bool Cassandra5GDB::delete_by_internal_id(int id) {
-  //   std::vector<SMFData> brs = get_row_by_id(id);
-  //   std::cout << "Found " << brs.size() << " bearers" << std::endl;
-  //   if (brs.size()> 0){
-  //       std::string imsi = brs[0].getImsi();
-  //       int bearerID = brs[0].getEpsSMFDataId();
-  //       CassError rc = query("DELETE FROM " + m_space + "."  +
-  //             m_table_5g_context + "_by_row_id WHERE imsi = \'" +
-  //             imsi + "\' and eps_bearer_id = " +
-  //             std::to_string(bearerID) + " IF EXISTS;");
-
-  //       if (rc != CASS_OK) {
-  //             std::cout << "Failed to delete index table by id " << id <<
-  //             std::endl;
-  //         }
-  //   };
-
-  //   CassError rc = query("DELETE FROM " + m_space + "."  + m_table_5g_context
-  //   +
-  //                          " WHERE row_id = " + std::to_string(id) + " IF
-  //                          EXISTS;");
-
-  //   if (rc != CASS_OK) {
-  //       std::cout << "Failed to delete by id " << id << std::endl;
-  //   }
-  //   else {
-  //       std::cout << "Success to delete by id " << id << std::endl;
-  //   }
-
-  //   return rc == CASS_OK;
-
   // not support yet
   return false;
 }
@@ -399,16 +262,6 @@ bool Cassandra5GDB::delete_by_imsi_bearer_id(std::string imsi, int bearerID) {
 }
 
 bool Cassandra5GDB::delete_all() {
-  //     CassError rc = query(" TRUNCATE " + m_space + "."  + m_table_5g_context
-  //     + ";"); rc = query(" TRUNCATE " + m_space + "."  + m_table_5g_context +
-  //     "_by_row_id ;"); if (rc != CASS_OK) {
-  //       std::cout << "Failed to clear 4G data" << std::endl;
-  //     }
-  //     else {
-  //         std::cout << "Success to clear 4G data" << std::endl;
-  //     }
-
-  //   return rc == CASS_OK;
 
   // not support yet
   return false;
@@ -424,8 +277,6 @@ std::vector<SMFData> Cassandra5GDB::get_row_by_id(int id) {
   Logger::flexcn_app().info(
       "[5g smf] not support the feature [get row by internal id]");
   return std::vector<SMFData>{};
-  // return select_query("SELECT * FROM " + m_space + "."  + m_table_5g_context
-  // + " WHERE supi = " + std::to_string(id) + ";");
 }
 
 std::vector<SMFData> Cassandra5GDB::get_row_by_imsi_bearer_id(
