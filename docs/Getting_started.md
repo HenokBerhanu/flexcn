@@ -2,10 +2,57 @@
 
 ## Prerequisites
 
-Currently, we only support Ubuntu 18.04, therefore, we recommend using docker to install FlexCN. At the moment of writing, FlexCN works only with OAI's CN. For other CN, it might work in theory but we have not tested it yet and you might miss some features that OAI's CN offers.
+Currently, we only support Ubuntu 18.04, therefore, we recommend using docker to install FlexCN. At the moment of writing, FlexCN works only with OAI's CN. For other CN, it might work in theory but we have not tested it yet and you might miss some features that OAI's CN offers. 
+
+Another option to use FlexCN is to install it on the host machine. Let's dive in this option first
+
+## Bare-metal installation
+
+On this option, we assume that you have a fresh installation of Ubuntu 18 on your host machine. Otherwise, you might face some unexpected errors.
+```
+## pick an empty folder that you will clone the source of flexcn
+$ cd /an/empty/folder/
+## clone this repo
+$ git clone https://gitlab.eurecom.fr/mosaic5g/flexcn.git
+## clone
+$ cd flexcn
+## set up the ROOT env variable
+$ export OPENAIRM5G_DIR=`pwd`
+## verify 
+$ echo $OPENAIRM5G_DIR
+## install some depende
+$ sudo apt-get update 
+$ sudo apt-get upgrade --yes
+$ sudo apt-get install --yes \
+    psmisc \
+    git \
+    libssl1.1 \
+    libkrb5-3 zlib1g
+$ sudo rm -rf /var/lib/apt/lists/*
+$ git config --global https.postBuffer 123289600
+$ git config --global http.sslverify false
+$ cd build/scripts
+$ ./build_flexcn --install-deps --force
+
+## set up the target you would like to build: '5g_smf', '5g_amf' or '5g_smf,5g_amf'
+$ export TARGET='5g_smf'
+$ echo $TARGET
+$ ./build_flexcn --clean --Verbose --build-type Release --jobs -t $TARGET
+
+## now flexcn is installed on your host
+## open file flexcn_conf.sh and change the value according to your settings
+## if you use oai-5g-fed to deploy the OAI's CN using docker and OAI's settings, you could keep
+## this file as it is. However, if you have your own deployment, please change it accordingly.
+
+## After changing, run that script to generate the config file
+$ ./flexcn_conf.sh
+## Now your config is stored at /usr/local/etc/oai/flexcn.conf
+```
+
+At this stage you can deploy your 5G CN as in [this section](## Deploy 5G CN). And then 
 
 
-# Install with docker
+## Install with docker
 For any purpose, please make sure that you have `docker` installed on your computer by following the tutorial [here](https://docs.docker.com/get-docker/). 
 
 Below are our settings:
@@ -58,6 +105,7 @@ $ ## assume that you are at flexcn folder.
 $ cd .. 
 $ git clone https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-fed.git
 $ cd oai-cn5g-fed
+## This folder will be call FED_ROOT
 ## before launch the CN, make sure to run this 
 $ sudo sysctl net.ipv4.conf.all.forwarding=1
 $ sudo iptables -P FORWARD ACCEPT
@@ -68,6 +116,9 @@ The cleaning steps below are recommended. Otherwise, you might get some unwanted
 ```
 ## stop all containers
 $ docker kill $(docker ps -q)
+## if you get this error: ""docker kill" requires at least 1 argument.", 
+## basically, it means you don't have any docker running, simply ignore and continue.
+
 ## clean unused network, please change accordingly to your case if necessary
 ## This is to avoid the overlap address space.
 $ docker network prune 
@@ -100,24 +151,52 @@ ce18401dd006   oai-nrf:latest       "/bin/bash /openair-…"   32 minutes ago   
 
 ## Usage:
 
-After that:
+After that, wait for few seconds so our CN become stable.
+### IF YOU INSTALL FLEXCN ON THE HOST:
 ```
-## launch flexcn after few seconds so our CN become stable.
-$ # assume that you are at oai-5gcn-fed folder
-$ cd ../flexcn/ 
-$ docker tag flexcn:prealpha oai-flexcn:prealpha
-$ docker-compose -f docker/docker-compose.flexcn.yaml up -d
-## wait a few seconds
+$ cd $FLEXCN_ROOT
+$ sudo flexcn -c /usr/local/etc/oai/flexcn.conf -o
+## open another terminal, assume you are still in the SAME folder 
 ## trigger FlexCN to subscribe both AMF and SMF, feel free to check the content of this script
-$ bash ./scripts/subscribe.sh
-$ bash ./scripts/query.sh
+$ bash ./scripts/subscribe.sh host 
+$ bash ./scripts/query.sh host
 [AMF:,SMF:] 
 ## you will get no output here since this is no UE connected to CN. 
 ## launch the ueransim
+$ cd $FED_ROOT
 $ docker-compose -f docker/docker-compose-ueransim-vpp.yaml up -d
 ## wait a few seconds 
 ## now you can try again to query FlexCN using its API (limited at this moment)
-$ bash ./scripts/query.sh
+$ cd $FLEXCN_ROOT
+$ bash ./scripts/query.sh host
+[AMF:[
+    "{\"notifyCorrelationId\":\"192.168.70.142:80/flexcn-status-notify/v1/amf001\",\"reportList\":[{\"state\":{\"active\":\"TRUE\"},\"supi\":\"imsi-208950000000031\",\"timeStamp\":\"3849335315\",\"type\":\"REGISTRATION_STATE_REPORT\"}]}",
+    "{\"notifyCorrelationId\":\"192.168.70.142:80/flexcn-status-notify/v1/amf001\",\"reportList\":[{\"state\":{\"active\":\"TRUE\"},\"supi\":\"imsi-208950000000031\",\"timeStamp\":\"3849335315\",\"type\":\"REGISTRATION_STATE_REPORT\"}]}"
+],SMF:[
+    "{\"eventNotifs\":[{\"dddStatus\":\"TRANSMITTED\",\"event\":\"DDDS\",\"pduSeId\":0,\"supi\":\"208950000000031\",\"timeStamp\":\"3849335316\"}],\"notifId\":\"notifid01\"}",
+    "{\"eventNotifs\":[{\"customized_data\":{\"amf_addr\":\"192.168.70.132\",\"dnn\":\"default\",\"pdu_session_type\":\"IPV4\",\"plmn\":{\"mcc\":\"208\",\"mnc\":\"95\"},\"qos_flow\":[{\"an_addr\":{\"ipv4\":\"192.168.72.141\"},\"qfi\":6,\"upf_addr\":{\"ipv4\":\"192.168.72.202\"}}],\"snssai\":{\"sd\":\"123\",\"sst\":222},\"ue_ipv4_addr\":\"12.2.1.2\"},\"event\":\"FLEXCN\",\"pduSeId\":1,\"supi\":\"208950000000031\",\"timeStamp\":\"3849335316\"}],\"notifId\":\"notifid01\"}"
+]] 
+## you will see some outputs here. Congrats!!
+```
+
+### OTHERWISE, IF YOU INSTALL FLEXCN USING DOCKER:
+``` 
+# assume that you are at oai-5gcn-fed folder
+$ cd $FLEXCN_ROOT 
+$ docker tag flexcn:prealpha oai-flexcn:prealpha
+$ docker-compose -f docker/docker-compose.flexcn.yaml up -d
+## wait a few seconds
+$ bash ./scripts/subscribe.sh docker 
+$ bash ./scripts/query.sh docker
+[AMF:,SMF:] 
+## you will get no output here since this is no UE connected to CN. 
+## launch the ueransim
+$ cd $FED_ROOT
+$ docker-compose -f docker/docker-compose-ueransim-vpp.yaml up -d
+## wait a few seconds 
+## now you can try again to query FlexCN using its API (limited at this moment)
+$ cd $FLEXCN_ROOT
+$ bash ./scripts/query.sh host
 [AMF:[
     "{\"notifyCorrelationId\":\"192.168.70.142:80/flexcn-status-notify/v1/amf001\",\"reportList\":[{\"state\":{\"active\":\"TRUE\"},\"supi\":\"imsi-208950000000031\",\"timeStamp\":\"3849335315\",\"type\":\"REGISTRATION_STATE_REPORT\"}]}",
     "{\"notifyCorrelationId\":\"192.168.70.142:80/flexcn-status-notify/v1/amf001\",\"reportList\":[{\"state\":{\"active\":\"TRUE\"},\"supi\":\"imsi-208950000000031\",\"timeStamp\":\"3849335315\",\"type\":\"REGISTRATION_STATE_REPORT\"}]}"
@@ -130,4 +209,6 @@ $ bash ./scripts/query.sh
 
 Now you received the data from CN.
 
+## KNOWN ISSUES: 
+If you are facing some problems of PDU's establiment when UE connects to CN, try restarting CN, FlexCN, UERANSIM. Normally, it should resolve the issue.
 
