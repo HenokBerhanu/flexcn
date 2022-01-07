@@ -146,7 +146,7 @@ CONTAINER ID   IMAGE                         COMMAND                  CREATED   
 000e302e8f9d   oai-smf:latest       "/bin/bash /openair-…"   32 minutes ago   Up 32 minutes (healthy)     80/tcp, 9090/tcp, 8805/udp     oai-smf
 4dcf2f9aad65   oai-amf:latest       "/bin/bash /openair-…"   32 minutes ago   Up 32 minutes (healthy)     80/tcp, 9090/tcp, 38412/sctp   oai-amf
 baece2e4e70b   oai-ausf:latest      "/bin/bash /openair-…"   32 minutes ago   Up 32 minutes (healthy)     80/tcp                         oai-ausf
-5ac1766e1683   ubuntu:bionic                 "/bin/bash -c ' apt …"   32 minutes ago   Up 32 minutes                                              oai-ext-dn
+5ac1766e1683   ubuntu:bionic        "/bin/bash -c ' apt …"   32 minutes ago   Up 32 minutes                                              oai-ext-dn
 dd2b0a1b663f   oai-udm:latest       "/bin/bash /openair-…"   32 minutes ago   Up 32 minutes (healthy)     80/tcp                         oai-udm
 b2d4e7c2c5d2   oai-udr:latest       "/bin/bash /openair-…"   32 minutes ago   Up 32 minutes (healthy)     80/tcp                         oai-udr
 b0979ec0023c   oai-upf-vpp:latest   "/openair-upf/bin/en…"   32 minutes ago   Up 32 minutes (healthy)     2152/udp, 8085/udp             vpp-upf
