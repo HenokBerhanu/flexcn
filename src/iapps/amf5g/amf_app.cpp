@@ -141,6 +141,7 @@ bool trigger_amf_notification_subscribe(
   if (!ret) {
     Logger::flexcn_app().error("Could not send http to AMF");
   }
+  return ret;
 }
 
 int AMFApp::subcribe_to_nf() {
