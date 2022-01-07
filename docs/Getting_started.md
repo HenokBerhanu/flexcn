@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-Currently, we only support Ubuntu 18.04, therefore, we recommend using docker to install FlexCN. At the moment of writing, FlexCN works only with OAI's CN. For other CN, it might work in theory but we have not tested it yet and you might miss some features that OAI's CN offers. 
+Currently, we only support Ubuntu 18.04, therefore, we recommend using docker to install FlexCN. At the moment of writing, FlexCN works only with OAI's CN. For other CNs, it might work in theory but we have not tested it yet and you might miss some features that OAI's CN offers. 
 
-Another option to use FlexCN is to install it on the host machine. Let's dive in this option first
+FlexCN can be installed on the host machine or inside a docker container. Let's dive in the first option. 
 
 ## Bare-metal installation
 
@@ -14,13 +14,12 @@ On this option, we assume that you have a fresh installation of Ubuntu 18 on you
 $ cd /an/empty/folder/
 ## clone this repo
 $ git clone https://gitlab.eurecom.fr/mosaic5g/flexcn.git
-## clone
 $ cd flexcn
 ## set up the ROOT env variable
 $ export OPENAIRM5G_DIR=`pwd`
 ## verify 
 $ echo $OPENAIRM5G_DIR
-## install some depende
+## install some dependencies
 $ sudo apt-get update 
 $ sudo apt-get upgrade --yes
 $ sudo apt-get install --yes \
@@ -35,12 +34,17 @@ $ cd build/scripts
 $ ./build_flexcn --install-deps --force
 
 ## set up the target you would like to build: '5g_smf', '5g_amf' or '5g_smf,5g_amf'
-$ export TARGET='5g_smf'
+## '5g_smf' means you would like to use only SMF. 
+## '5g_amf' means you would like to use only AMF. 
+## '5g_smf,5g_amf' means you would like to use both.
+## Note: This is only for building process, it does NOT mean FlexCN automatic connect to SMF/AMF for you.
+## You still need to trigger the subscription MANUALLY. 
+$ export TARGET='5g_smf,5g_amf'
 $ echo $TARGET
 $ ./build_flexcn --clean --Verbose --build-type Release --jobs -t $TARGET
 
 ## now flexcn is installed on your host
-## open file flexcn_conf.sh and change the value according to your settings
+## open file ./build/scripts/flexcn_conf.sh and change the value according to your settings
 ## if you use oai-5g-fed to deploy the OAI's CN using docker and OAI's settings, you could keep
 ## this file as it is. However, if you have your own deployment, please change it accordingly.
 
@@ -49,8 +53,9 @@ $ ./flexcn_conf.sh
 ## Now your config is stored at /usr/local/etc/oai/flexcn.conf
 ```
 
-At this stage you can deploy your 5G CN as in [this section](## Deploy 5G CN). And then 
+At this stage you can deploy your 5G CN as in [this section](#deploy-5g-cn). 
 
+If you prefer Docker, let's look at the next section. 
 
 ## Install with docker
 For any purpose, please make sure that you have `docker` installed on your computer by following the tutorial [here](https://docs.docker.com/get-docker/). 
@@ -146,7 +151,7 @@ dd2b0a1b663f   oai-udm:latest       "/bin/bash /openair-…"   32 minutes ago   
 b2d4e7c2c5d2   oai-udr:latest       "/bin/bash /openair-…"   32 minutes ago   Up 32 minutes (healthy)     80/tcp                         oai-udr
 b0979ec0023c   oai-upf-vpp:latest   "/openair-upf/bin/en…"   32 minutes ago   Up 32 minutes (healthy)     2152/udp, 8085/udp             vpp-upf
 ce18401dd006   oai-nrf:latest       "/bin/bash /openair-…"   32 minutes ago   Up 32 minutes (healthy)     80/tcp, 9090/tcp               oai-nrf
-1dd52acb8cf2   mysql:5.7                     "docker-entrypoint.s…"   32 minutes ago   Up 32 minutes (healthy)     3306/tcp, 33060/tcp            mysql
+1dd52acb8cf2   mysql:5.7            "docker-entrypoint.s…"   32 minutes ago   Up 32 minutes (healthy)     3306/tcp, 33060/tcp            mysql
 ```
 
 ## Usage:
@@ -211,4 +216,3 @@ Now you received the data from CN.
 
 ## KNOWN ISSUES: 
 If you are facing some problems of PDU's establiment when UE connects to CN, try restarting CN, FlexCN, UERANSIM. Normally, it should resolve the issue.
-
