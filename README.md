@@ -15,12 +15,11 @@ file at the root of this repository.
 
 # Where to start
 
-The Openair-Flexcn code is written, executed, and tested on UBUNTU server bionic version.
-Other Linux distributions support will be added later on.
+### Follow the instruction [here](docs/Getting_started.md) to start to use FlexCN.
+
+FlexCN code is written, executed, and tested on UBUNTU bionic version. Other Linux distributions support will be added later on.
 
 More details on the supported feature set is available on this [page](docs/FEATURE_SET.md).
-
-If you want to start to use FlexCN, please refer to our tutorial [here](docs/Getting_started.md). 
 
 # Collaborative work
 
